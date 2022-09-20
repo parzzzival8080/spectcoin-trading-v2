@@ -24,6 +24,17 @@ class FutureController extends Controller
     public function index(IndexFutureRequest $request)
     {
         //
+        $auth = Auth::user();
+
+        if($auth->role == 'ADMINISTRATOR')
+        {
+            $future = Future::with('client', 'coin')->get();
+        }
+        elseif($auth->role == 'CLIENT')
+        {
+            $client = Client::where('user_id', $auth->id)->first();
+            $future = Future::where('client_id', $client->id)->orderBy('id', 'DESC')->first();
+        }
     }
 
     /**
@@ -213,5 +224,24 @@ class FutureController extends Controller
                  
             );
         }
+    }
+
+    public function margin()
+    {
+        $auth = Auth::user();
+
+        if($auth->role == 'ADMINISTRATOR')
+        {
+            $future = Future::with('client', 'coin')->get();
+        }
+        elseif($auth->role == 'CLIENT')
+        {
+            $client = Client::where('user_id', $auth->id)->first();
+            $future = Future::where('client_id', $client->id)->orderBy('id', 'DESC')->first();
+        }
+
+        return response()->json([
+            'margin' => $future 
+        ]);
     }
 }

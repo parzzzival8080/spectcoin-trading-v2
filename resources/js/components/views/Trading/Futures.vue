@@ -158,7 +158,7 @@
                   <v-card-title>
                     <v-row>
                       <v-col cols="6">BTCUSDT<br/>
-                        <v-span style="font-size:12px">Income Rate: %</v-span> 
+                        <v-span style="font-size:12px">Income Rate: {{margin.rate_of_return}} %</v-span> 
                       </v-col>
                       <v-col cols="6"><v-btn>Close Position</v-btn></v-col>
                     </v-row>
@@ -170,19 +170,19 @@
                         <span style="font-size:15px; font-weight:600">Opening Interest</span>
                      </v-col>
                      <v-col cols="6">
-                      <span style="font-size:15px; font-weight:600"></span>
+                      <span style="font-size:15px; font-weight:600">{{margin.open_interest}}</span>
                      </v-col>
                      <v-col cols="6">
                       <span style="font-size:15px; font-weight:600">Entry Price</span>
                         </v-col>
                         <v-col cols="6">
-                          <span style="font-size:15px; font-weight:600"></span>
+                          <span style="font-size:15px; font-weight:600">{{margin.opening_price}}</span>
                         </v-col>
                         <v-col cols="6">
                           <span style="font-size:15px; font-weight:600">Income(USDT)</span>
                       </v-col>
                       <v-col cols="6">
-                        <span style="font-size:15px; font-weight:600"></span>
+                        <span style="font-size:15px; font-weight:600">{{margin.income}}</span>
                       </v-col>
                       <v-col cols="6">
                         <span style="font-size:15px; font-weight:600">Accessible Volume</span>
@@ -194,25 +194,25 @@
                           <span style="font-size:15px; font-weight:600">Current Price</span>
                       </v-col>
                       <v-col cols="6">
-                        <span style="font-size:15px; font-weight:600"></span>
+                        <span style="font-size:15px; font-weight:600">{{margin.current_price}}</span>
                       </v-col>
                       <v-col cols="6">
                         <span style="font-size:15px; font-weight:600">Margin(USDT)</span>
                     </v-col>
                     <v-col cols="6">
-                      <span style="font-size:15px; font-weight:600"></span>
+                      <span style="font-size:15px; font-weight:600">{{margin.margin}}</span>
                     </v-col>
                       <v-col cols="6">
                         <span style="font-size:15px; font-weight:600">Leverage(Multiple)</span>
                     </v-col>
                     <v-col cols="6">
-                      <span style="font-size:15px; font-weight:600"></span>
+                      <span style="font-size:15px; font-weight:600">X{{margin.leverage}}</span>
                     </v-col>
                     <v-col cols="6">
                       <span style="font-size:15px; font-weight:600">Remaining Time of Contract</span>
                    </v-col>
                    <v-col cols="6">
-                    <span style="font-size:15px; font-weight:600"></span>
+                    <span style="font-size:15px; font-weight:600">Coming Soon</span>
                   </v-col>
                     </v-row>
 
@@ -546,6 +546,7 @@
         this.buyButton()
         this.fetchOrder()
         this.fetchMarket()
+        this.fetchFuture()
         this.timer = setInterval(this.fetchOrder, 3000);
   
     },

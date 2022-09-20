@@ -80,7 +80,7 @@ Route::group(['middleware' => 'forceJsonResponse'], function () {
 
             Route::apiResource('futures/order', FutureController::class);
 
-            Route::get('/api/v1/margin', []);
+            Route::get('margin', [FutureController::class, 'margin']);
 
             
            

@@ -54,13 +54,13 @@
                   <v-row>
                     <v-divider></v-divider>
                     
-                    <v-select outlined label="Select Coin" v-model="coin"></v-select>                    
-                    <v-select outlined label="Select Network" v-model="transfer"></v-select> 
+                    <v-select outlined label="Select Coin" :items="itemCoins" item-text="name" item-value="id"  v-model="coin"></v-select>                    
+                    <v-select outlined label="Select Network" :items="itemWallets" item-text="text" item-value="id"  v-model="transfer"></v-select> 
                   </v-row>
                   <v-row>
                     <v-col cols="6">
                         <span>USDT balance</span><br/>
-                        <span style="font-weight:600">00000 USDT</span>
+                        <span v-for="(wallet, index) in usdtWallet" :key="index" style="font-weight:600"> {{wallet['wallet_balance']}} USDT</span>
                     </v-col>
                     <v-col cols="6">
                         <span>Minimum withdrawal</span><br/>
@@ -127,6 +127,9 @@
             balance: '',
             flat: null,
             amount_to_buy: '',
+            transfer: [],
+            itemCoins: [],
+            coin: '',
             btc: [],
             eth: [],
             xrp: [],
@@ -140,9 +143,16 @@
             price: [],
             wallet: [],
             amount: [],
+            usdtWallet: [],
             timer: '',
   
             errors: [],
+
+            itemWallets: [
+              { text: "TRC20", value: "TRC20" },
+              { text: "ERC20", value: "ERC20" },
+              { text: "OMNI20", value: "OMNI20" },
+            ],
   
             items: [
                 {
@@ -158,13 +168,39 @@
         ],
         };    
     },
-  
-    // methods: {
-    //   fetchMyWallet()
-    //   {
-  
-    //   },
-    // }
+
+    methods: {
+      fetchMyWallet()
+    {
+      axios.get('/api/v1/wallets/spot')
+      .then(response => {
+        
+        this.usdtWallet = response.data.usdtWallet
+        this.wallets = response.data.wallet
+      })
+    },
+
+    fetchCoins() {
+            axios
+                .get("/api/v1/coins")
+                .then(response => {
+                    this.itemCoins = response.data.coins;
+                })
+                .catch(error => {
+                    console.log(error);
+                })
+                .finally(() => {
+                    this.componentOverlay = false;
+                    this.tableLoading = false;
+                });         
+        },
+    }, 
+
+    created()
+    {
+      this.fetchMyWallet()
+      this.fetchCoins()
+    }
   };
   </script>
   
