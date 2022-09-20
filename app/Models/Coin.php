@@ -51,11 +51,6 @@ class Coin extends Model
 
     public function clientWallets()
     {
-        return $this->hasMany(ClientWallet::class);
-    }
-
-    public function clientWallet()
-    {
         return $this->belongsTo(ClientWallet::class);
     }
 

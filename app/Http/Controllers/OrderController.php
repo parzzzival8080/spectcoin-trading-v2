@@ -10,9 +10,12 @@ use App\Models\Coin;
 use App\Models\CoinChartData;
 use App\Models\CoinPair;
 use App\Models\Order;
+use App\Models\SpotOrder;
 use Carbon\Carbon;
+use Hamcrest\Core\HasToString;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use TechTailor\BinanceApi\BinanceAPI;
 
 class OrderController extends Controller
 {
@@ -56,88 +59,176 @@ class OrderController extends Controller
     {
         $mytime = Carbon::now();
         $user = Auth::user();
-        $client = Client::where('client_id', $user->id)->first();
-        $coinpair = CoinPair::where('id', $request->input('coin_pair_id'))->first();
-        $coin = Coin::where('id', $coinpair->coin_id)->first();
+        $client = Client::where('user_id', $user->id)->first();
+        $coin = Coin::where('name', $request->input('name'))->first();
+        $coinpair = CoinPair::where('coin_id', $coin->id)->first();
+        $usdtWallet = ClientWallet::where('coin_id', 1)->where('client_id', $client->id)->first();
+        $coinWallet = ClientWallet::where('coin_id', $coin->id)->where('client_id', $client->id)->first();
 
-        $wallet = ClientWallet::where('coin_id', $coin->id)->first();
-
-        if($wallet->wallet_balance == null)
+        if($coinpair->pair_type == 'MAIN')
         {
-            $clientWallet = ClientWallet::create(array_merge(
-                ['client_id' => $client->id, 'coin_id' => $coin->id, 'wallet_balance' => 0]
-            ));
-        }
+            $binance = new BinanceAPI();
+            $coinPair = $request->input('name').'USDT';
+            $btcPrice = $binance->getTicker($coinPair);
+            
+            /** Get usdt balance and Update */
+            
+            
+            if($request->input('delegate_type') == 'BUY')   
+            {
+                $usdtBalance = $usdtWallet->wallet_balance - $request->input('balance');
+                $usdtWallet->update([
+                    'wallet_balance' => $usdtBalance
+                ]);
 
-        else{
-            $clientWallet = $wallet;
-        }
-        $price = CoinChartData::where('id', $request->input('coin_pair_id'))->orderBy('date', 'DESC')->first();
+                // dd($usdtWallet->wallet_balance);
+                // $finalNumberOfOrder = ($btcPrice['lastPrice'] * $request->input('number_of_order'))  / $btcPrice['lastPrice'];
+                $finalNumberOfOrder = $btcPrice['lastPrice'] * $request->input('balance');
+                $coinBalance = $coinWallet->wallet_balance + $finalNumberOfOrder;
+                $coinWallet->update([
+                    'wallet_balance' => $coinBalance
+                ]);
 
-        if($request->input('delegate') == 'BUY')
-        {
-            $finalNumberOfOrder = $request->input('number_of_order') / $price->close;
-
-            $walletBalance = $clientWallet->wallet_balance - $request->input('number_of_order');
-
-            $clientWallet->update([
-                'wallet_balance' => $walletBalance
-            ]);
-            $order = Order::create(array_merge(
-                [
+                $order = Order::create(array_merge([
                     'client_id' => $client->id,
-                    'client_wallet_id' => $clientWallet->id, 
-                    'role' => $client->role,
-                    'delegate_type' => $request->input('delegate_type'),
-                    'state' => 'PENDING',
+                    'coin_pair_id' => $coinpair->id,
+                    'client_wallet_id' => $coinWallet->id,
+                    'role' => 'CLIENT',
+                    'delegate_type' => 'BUY',
+                    'state' => 'APPROVED',
                     'number_of_order' => $finalNumberOfOrder,
-                    'total_commission' => '0',
-                    'final_price' => $price->close,
-                    'volume' => 0,
-                    'turnover' => 0,
+                    'unit_price' => $btcPrice['lastPrice'],
+                    'total_commission' => $finalNumberOfOrder,
+                    'final_price' => $btcPrice['lastPrice'],
+                    'volume' => $btcPrice['volume'],
+                    'turnover' => $finalNumberOfOrder,
                     'commission_time' => $mytime->toDateTimeString(),
-                    'last_modified' => $mytime->toTimeString(),
-                ],
-            ));   
-        }
-        elseif($request->input('delegate') == 'SELL')
-        {
-            $finalNumberOfOrder = $price->close * $request->input('number_of_order');
+                    'last_modified' => $mytime->toDayDateTimeString()
+                ],$request->validated())); 
 
-            $usdtWallet = ClientWallet::where('client_id', $client->id)->where('name', 'USDT')->first();
 
-            $walletBalance = $usdtWallet->wallet_balance + $finalNumberOfOrder;
+            }elseif($request->input('delegate_type') == 'SELL')
+            {
+                $finalNumberOfOrder = ($request->input('balance') * $btcPrice['lastPrice'] );
+                // dd($finalNumberOfOrder);
+                // dd($request->input('balance'));
 
-            $usdtWallet->update([
-                'wallet_balance' => $walletBalance
-            ]);
+                $coinBalance = $coinWallet->wallet_balance - $request->input('balance');
+                $coinWallet->update([
+                    'wallet_balance' => $coinBalance
+                ]);
 
-            $order = Order::create(array_merge(
-                [
+
+                $usdtBalance = $usdtWallet->wallet_balance + $finalNumberOfOrder;
+                $usdtWallet->update([
+                    'wallet_balance' => $usdtBalance
+                ]);
+
+                // dd($usdtWallet->wallet_balance);
+                
+
+                $order = Order::create(array_merge([
                     'client_id' => $client->id,
-                    'client_wallet_id' => $clientWallet->id, 
-                    'role' => $client->role,
-                    'delegate_type' => $request->input('delegate_type'),
-                    'state' => 'PENDING',
-                    'total_commission' => '0',
-                    'final_price' => $price->close,
-                    'volume' => 0,
-                    'turnover' => 0,
+                    'coin_pair_id' => $coinpair->id,
+                    'client_wallet_id' => $usdtWallet->id,
+                    'role' => 'CLIENT',
+                    'delegate_type' => 'SELL',
+                    'state' => 'APPROVED',
+                    'number_of_order' => $finalNumberOfOrder,
+                    'unit_price' => $btcPrice['lastPrice'],
+                    'total_commission' => $finalNumberOfOrder,
+                    'final_price' => $btcPrice['lastPrice'],
+                    'volume' => $btcPrice['volume'],
+                    'turnover' => $finalNumberOfOrder,
                     'commission_time' => $mytime->toDateTimeString(),
-                    'last_modified' => $mytime->toTimeString(),
-                ],
-                $request->validated()
-            ));
+                    'last_modified' => $mytime->toDayDateTimeString()
+                ],$request->validated())); 
+            }
         }
+        else
+        {
+            $price = CoinChartData::where('id', $request->input('coin_pair_id'))->orderBy('date', 'DESC')->first();
+            if($request->input('delegate') == 'BUY')
+                {
+                    $walletBalance = $usdtWallet->wallet_balance - $request->input('balance');
+                    $usdtWallet->update([
+                        'wallet_balance' => $walletBalance
+                    ]);
+
+                    $finalNumberOfOrder = $price->close * $request->input('balance');
+                    // $finalNumberOfOrder = $request->input('number_of_order') / $price->close;
+
+                    $coinBalance = $coinWallet->wallet_balance + $finalNumberOfOrder;
+                    $usdtWallet->update([
+                        'wallet_balance' => $walletBalance
+                    ]);
+
+                    $order = Order::create(array_merge(
+                        [
+                            'client_id' => $client->id,
+                            'coin_pair_id' => $coinpair->id,
+                            'client_wallet_id' => $coinWallet->id,
+                            'role' => 'CLIENT',
+                            'delegate_type' => 'BUY',
+                            'state' => 'APPROVED',
+                            'number_of_order' => $finalNumberOfOrder,
+                            'unit_price' =>$price->close,
+                            'total_commission' => $finalNumberOfOrder,
+                            'final_price' => $price->close,
+                            'volume' => $price->volume,
+                            'turnover' => $finalNumberOfOrder,
+                            'commission_time' => $mytime->toDateTimeString(),
+                            'last_modified' => $mytime->toDayDateTimeString()
+                        ],
+                    ));   
+                }
+                elseif($request->input('delegate') == 'SELL')
+                {
+                $finalNumberOfOrder = ($request->input('balance') * $price->close );
+                // dd($finalNumberOfOrder);
+                // dd($request->input('balance'));
+
+                $coinBalance = $coinWallet->wallet_balance - $request->input('balance');
+                $coinWallet->update([
+                    'wallet_balance' => $coinBalance
+                ]);
 
 
-        
+                $usdtBalance = $usdtWallet->wallet_balance + $finalNumberOfOrder;
+                $usdtWallet->update([
+                    'wallet_balance' => $usdtBalance
+                ]);
+
+                    $order = Order::create(array_merge(
+                        [
+                            'client_id' => $client->id,
+                            'coin_pair_id' => $coinpair->id,
+                            'client_wallet_id' => $coinWallet->id,
+                            'role' => 'CLIENT',
+                            'delegate_type' => 'BUY',
+                            'state' => 'APPROVED',
+                            'number_of_order' => $finalNumberOfOrder,
+                            'unit_price' =>$price->close,
+                            'total_commission' => $finalNumberOfOrder,
+                            'final_price' => $price->close,
+                            'volume' => $price->volume,
+                            'turnover' => $finalNumberOfOrder,
+                            'commission_time' => $mytime->toDateTimeString(),
+                            'last_modified' => $mytime->toDayDateTimeString()
+                        ],
+                        $request->validated()
+                    ));
+                }
+        }
 
         return response()->json(
             [
                 'order' => $order
             ]
         );
+
+        
+        
     }
 
     /**
@@ -185,100 +276,100 @@ class OrderController extends Controller
         //
     }
 
-    public function buyOrder(StoreOrderRequest $request)
-    {
-        $auth = Auth::user();
-        $client = Client::where('user_id', $auth->id)->get();
-        $numberOfOrder = $request->input('number_of_order');
-        $orderPerUnit = $request->input('order_per_unit');
-        $mytime = Carbon::now();
-        if($auth->role == 'CLIENT')
-        {
+    // public function buyOrder(StoreOrderRequest $request)
+    // {
+    //     $auth = Auth::user();
+    //     $client = Client::where('user_id', $auth->id)->get();
+    //     $numberOfOrder = $request->input('number_of_order');
+    //     $orderPerUnit = $request->input('order_per_unit');
+    //     $mytime = Carbon::now();
+    //     if($auth->role == 'CLIENT')
+    //     {
 
-            /** Formula */
-            /** Total_buy_order = number of order / order_per_unit  */
-            /** for example */
-            /** Buy xrp(0.323) with 200 usdt */
-            /** total_buy_order = 200 / 0.323  */
-            /** total_commission = 619.19 * 0.327*/
-            /** total_commission is 202 increased $2 */
-            $totalBuyOrder = $numberOfOrder / $orderPerUnit;
-            $totalCommission = $totalBuyOrder * $orderPerUnit;
-            $buyOrder = Order::create(array_merge([
-                'role' => 'CLIENT',
-                'delegate_type' => 'BUY',
-                'total_commission' => $totalCommission,
-                'final_price' => $orderPerUnit,
-                'volume' => $totalBuyOrder,
-                'turnover' => $totalCommission,
-                'commission_time' => $mytime->toDateTimeString(),
-                'last_modified' => $mytime->toDateTimeString(),
+    //         /** Formula */
+    //         /** Total_buy_order = number of order / order_per_unit  */
+    //         /** for example */
+    //         /** Buy xrp(0.323) with 200 usdt */
+    //         /** total_buy_order = 200 / 0.323  */
+    //         /** total_commission = 619.19 * 0.327*/
+    //         /** total_commission is 202 increased $2 */
+    //         $totalBuyOrder = $numberOfOrder / $orderPerUnit;
+    //         $totalCommission = $totalBuyOrder * $orderPerUnit;
+    //         $buyOrder = Order::create(array_merge([
+    //             'role' => 'CLIENT',
+    //             'delegate_type' => 'BUY',
+    //             'total_commission' => $totalCommission,
+    //             'final_price' => $orderPerUnit,
+    //             'volume' => $totalBuyOrder,
+    //             'turnover' => $totalCommission,
+    //             'commission_time' => $mytime->toDateTimeString(),
+    //             'last_modified' => $mytime->toDateTimeString(),
 
-            ],
-                $request->validated()
-            ));
+    //         ],
+    //             $request->validated()
+    //         ));
 
-            return response()->json(
-                [
-                    'order' => $buyOrder
-                ]
-            );
-        }
-    }
+    //         return response()->json(
+    //             [
+    //                 'order' => $buyOrder
+    //             ]
+    //         );
+    //     }
+    // }
 
-    public function sellOrder(StoreOrderRequest $request)
-    {
-        $auth = Auth::user();
-        $client = Client::where('user_id', $auth->id)->get();
-        $numberOfOrder = $request->input('number_of_order');
-        $orderPerUnit = $request->input('order_per_unit');
-        $trading_pair = $request->input('trading_pair');
+    // public function sellOrder(StoreOrderRequest $request)
+    // {
+    //     $auth = Auth::user();
+    //     $client = Client::where('user_id', $auth->id)->get();
+    //     $numberOfOrder = $request->input('number_of_order');
+    //     $orderPerUnit = $request->input('order_per_unit');
+    //     $trading_pair = $request->input('trading_pair');
 
-        $mytime = Carbon::now();
+    //     $mytime = Carbon::now();
 
-        $order = Order::where('trading_pair', $trading_pair)
-                        ->where('client_id', $client->id)
-                        ->orderBy('commission_time', 'DESC')->first();
-        if($auth->role == 'CLIENT')
-        {
-            /** Formula */
-            /** Total_buy_order = number of order / order_per_unit  */
-            /** for example */
-            /** Sell 619.19 xrp */
-            /** total_sell_order = 619.19 * 0.327  */
-            /** If sell is win */
-            /** total_commission = 200 + (202.47 - 200) */
-            /** total_commission is 202 increased $2 */
-            /** If sell is lose */
-            /** total_sell_order = 619.19 * 0.3  */
-            //** total_commission = 200 + (185.75 - 200) */
-            //** total_commission */
-            /** total_commission is 202 decreased by $14.25 */
+    //     $order = Order::where('trading_pair', $trading_pair)
+    //                     ->where('client_id', $client->id)
+    //                     ->orderBy('commission_time', 'DESC')->first();
+    //     if($auth->role == 'CLIENT')
+    //     {
+    //         /** Formula */
+    //         /** Total_buy_order = number of order / order_per_unit  */
+    //         /** for example */
+    //         /** Sell 619.19 xrp */
+    //         /** total_sell_order = 619.19 * 0.327  */
+    //         /** If sell is win */
+    //         /** total_commission = 200 + (202.47 - 200) */
+    //         /** total_commission is 202 increased $2 */
+    //         /** If sell is lose */
+    //         /** total_sell_order = 619.19 * 0.3  */
+    //         //** total_commission = 200 + (185.75 - 200) */
+    //         //** total_commission */
+    //         /** total_commission is 202 decreased by $14.25 */
 
 
-            $totalSellOrder = $numberOfOrder * $orderPerUnit;
-            $totalCommission = $order->total_commission + ($totalSellOrder - $order->total_commission);
-            $sellOrder = Order::create(array_merge([
-                'role' => 'CLIENT',
-                'delegate_type' => 'SELL',
-                'total_commission' => $totalCommission,
-                'final_price' => $orderPerUnit,
-                'volume' => $totalSellOrder,
-                'turnover' => $totalCommission,
-                'commission_time' => $mytime->toDateTimeString(),
-                'last_modified' => $mytime->toDateTimeString(),
-            ],
-                $request->validated()
-            ));
+    //         $totalSellOrder = $numberOfOrder * $orderPerUnit;
+    //         $totalCommission = $order->total_commission + ($totalSellOrder - $order->total_commission);
+    //         $sellOrder = Order::create(array_merge([
+    //             'role' => 'CLIENT',
+    //             'delegate_type' => 'SELL',
+    //             'total_commission' => $totalCommission,
+    //             'final_price' => $orderPerUnit,
+    //             'volume' => $totalSellOrder,
+    //             'turnover' => $totalCommission,
+    //             'commission_time' => $mytime->toDateTimeString(),
+    //             'last_modified' => $mytime->toDateTimeString(),
+    //         ],
+    //             $request->validated()
+    //         ));
 
-            return response()->json(
-                [
-                    'order' => $sellOrder
-                ]
-            );
+    //         return response()->json(
+    //             [
+    //                 'order' => $sellOrder
+    //             ]
+    //         );
 
-        }
-    }
+    //     }
+    // }
 
     
     /** Save for later */ 

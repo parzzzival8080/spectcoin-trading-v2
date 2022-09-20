@@ -33,9 +33,8 @@ class StoreFutureTransferRequest extends FormRequest
     {
         return [
             //
-            'client_id' => 'required',
-            'coin_pair_id' => 'required',
-            'client_wallet_future_id' => 'required',
+            'coin_id' => 'required',
+            'state' => 'required',
             'draw_type' => 'required',
             'transfer_amount' => 'required',
         ];

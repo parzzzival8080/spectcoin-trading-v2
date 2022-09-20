@@ -26,9 +26,9 @@ class CreateOrdersTable extends Migration
             $table->enum('delegate_type', ['BUY', 'SELL']);
             $table->string('state');
             $table->string('number_of_order');
-            $table->string('order_per_unit');
+            $table->double('order_per_unit');
             $table->string('total_commission');
-            $table->string('final_price');
+            $table->double('final_price');
             $table->string('volume')->nullable();
             $table->string('turnover')->nullable();
             $table->string('commission_time');

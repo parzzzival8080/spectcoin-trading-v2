@@ -7,6 +7,7 @@ use App\Http\Requests\ClientWallet\StoreClientWalletRequest;
 use App\Http\Requests\ClientWallet\UpdateClientWalletRequest;
 use App\Models\Client;
 use App\Models\ClientWallet;
+use App\Models\Coin;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -33,9 +34,16 @@ class ClientWalletController extends Controller
         }
         elseif($auth->role == 'CLIENT')
         {
-            $client = Client::where('user_id', $auth->id)->with('clientWallets')->first();
+            $client = Client::where('user_id', $auth->id)->first();
+            $usdtWallet = ClientWallet::where('client_id', $client->id)->where('coin_id', 1)->with('client')->get();
+            $wallet = ClientWallet::where('client_id', $client->id)->with('client', 'coin')->get();
         }
-    }
+
+        return response()->json([
+            'usdtWallet' => $usdtWallet,
+            'wallet' => $wallet
+        ]);
+        }
 
     /**
      * Show the form for creating a new resource.
@@ -145,5 +153,45 @@ class ClientWalletController extends Controller
     public function destroy($id)
     {
         //
+    }
+
+    public function getWalletBalance(Request $request)
+    {
+        $auth = Auth::user();
+        if($auth->role == null)
+        {
+            return response()->json(
+                [
+                    'message' => 'INVALID ACTION'
+                ]
+            );
+        }
+        else{
+            $client = Client::where('user_id', $auth->id)->first();
+            // dd($client->id);
+            $coin = Coin::where('name', $request->input('name'))->first();
+            // dd($coin->id);
+            $wallet = ClientWallet::where('client_id', $client->id)->where('coin_id', $coin->id)->first();
+
+            // dd($wallet);
+
+            if($wallet == null)
+            {
+                $wallet = ClientWallet::create(array_merge(
+                    [
+                    'client_id' => $client->id, 
+                    'coin_id' => $coin->id, 
+                    'wallet_balance' => 0]
+                ));
+            }
+
+            return response()->json(
+                [
+                    'wallet' => $wallet
+                ]
+            );
+
+        }
+        
     }
 }

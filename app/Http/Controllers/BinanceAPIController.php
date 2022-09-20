@@ -60,27 +60,17 @@ class BinanceAPIController extends Controller
 
     public function getOrder(Request $request)
     {
-        // $auth = Auth::user();
-        // if($auth->role == )
-        // {
-
-        // }
-        if($request->input('delegate_type') == 'BUY')
-        {
-
-        }
-        elseif($request->input('delegate_type' == 'SELL'))
-        {
-
-        }
-
-        $price = 
-        $response = Http::get('https://binance.com/api/v3/depth?limit=10&symbol=BTCUSDT')->json();
-        $binance = new BinanceAPI();
-        $btc = 'BTCUSDT';
-        $result = $binance->getOrderBook($btc);
     
 
-        return response()->json(['result' => $response]);
+        $response = Http::get('https://binance.com/api/v3/depth?limit=5&symbol=BTCUSDT')->json();
+        $binance = new BinanceAPI();
+        $btc = 'BTCUSDT';
+        $btcPrice = $binance->getTicker($btc);
+    
+
+        return response()->json([
+            'result' => $response,
+            'price' => $btcPrice
+    ]);
     }
 }

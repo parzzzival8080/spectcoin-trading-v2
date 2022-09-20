@@ -27,4 +27,9 @@ class CoinPair extends Model
     {
         return $this->belongsTo(Coin::class, 'coin_pair_id', 'id');
     }
+
+    public function orders()
+    {
+        return $this->hasMany(Order::class);
+    }
 }

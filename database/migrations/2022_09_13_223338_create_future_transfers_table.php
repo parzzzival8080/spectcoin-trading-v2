@@ -17,8 +17,10 @@ class CreateFutureTransfersTable extends Migration
             $table->bigIncrements('id');
             $table->unsignedBigInteger('client_id');
             $table->foreign('client_id')->references('id')->on('clients')->onDelete('cascade');
-            $table->unsignedBigInteger('coin_pair_id');
-            $table->foreign('coin_pair_id')->references('id')->on('clients')->onDelete('cascade');
+            $table->unsignedBigInteger('coin_id');
+            $table->foreign('coin_id')->references('id')->on('coins')->onDelete('cascade');
+            $table->unsignedBigInteger('client_wallet_id');
+            $table->foreign('client_wallet_id')->references('id')->on('client_wallets')->onDelete('cascade');
             $table->unsignedBigInteger('client_wallet_future_id');
             $table->foreign('client_wallet_future_id')->references('id')->on('client_wallet_futures')->onDelete('cascade');
             $table->enum('draw_type', ['DRAW_IN', 'DRAW_OUT']);

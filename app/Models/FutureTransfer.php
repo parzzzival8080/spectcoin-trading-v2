@@ -8,7 +8,7 @@ class FutureTransfer extends Model
 {
     //
 
-    protected $fillable = ['client_id','coin_pair_id', 'client_wallet_future_id', 'draw_type', 'state', 'transfer_amount', 
+    protected $fillable = ['client_id','coin_id', 'client_wallet_id', 'client_wallet_future_id', 'draw_type', 'state', 'transfer_amount', 
                             'transfer_time', 'review_time', 'auditor', 'notes'];
 
     public function client()
@@ -16,9 +16,9 @@ class FutureTransfer extends Model
         return $this->belongsTo(Client::class, 'client_id', 'id');
     }
 
-    public function coinPair()
+    public function coin()
     {
-        return $this->belongsTo(CoinPair::class, 'coin_pair_id', 'id');
+        return $this->belongsTo(Coin::class, 'coin_id', 'id');
     }
 
     public function clientWalletFuture()

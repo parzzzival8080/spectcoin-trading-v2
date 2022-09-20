@@ -9,6 +9,10 @@ use App\Http\Controllers\ClientWithdrawController;
 use App\Http\Controllers\CoinChartDataController;
 use App\Http\Controllers\CoinController;
 use App\Http\Controllers\CoinPairController;
+use App\Http\Controllers\FutureController;
+use App\Http\Controllers\FutureTransferController;
+use App\Http\Controllers\FutureWalletController;
+use App\Http\Controllers\OrderController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VerificationController;
 use App\Models\ClientWithdraw;
@@ -51,6 +55,8 @@ Route::group(['middleware' => 'forceJsonResponse'], function () {
             
 
             // Route::apiResource();
+            Route::get('wallet-balance', [ClientWalletController::class, 'getWalletBalance']);
+            Route::get('future/wallet-balance', [FutureWalletController::class, 'getWalletBalance']);
             Route::get('offline-deposit-audit', [ClientDepositController::class,'depositAudit']);
             Route::get('offline-deposit-record', [ClientDepositController::class,'depositRecord']);
             Route::get('currency-transfer-review', [ClientDepositController::class ,'depositRecord']);
@@ -58,12 +64,25 @@ Route::group(['middleware' => 'forceJsonResponse'], function () {
             Route::apiResource('coins', CoinController::class);
             Route::apiResource('deposits', ClientController::class);
             Route::apiResource('withdrawals', ClientWithdrawController::class);
-            Route::apiResource('wallets', ClientWalletController::class);
+            Route::apiResource('wallets/spot', ClientWalletController::class);
             Route::apiResource('chart', CoinChartDataController::class);
             Route::apiResource('coinpairs', CoinPairController::class);
             Route::get('latest-candle', [CoinPairController::class, 'latestCandle']);
             Route::get('latest-candle/update', [CoinPairController::class,'updateCandle']);
             Route::post('latest-candle/add', [CoinPairController::class, 'addChartData']);
+            Route::apiResource('order', OrderController::class);
+            
+
+            Route::apiResource('transfers', FutureTransferController::class);
+            Route::post('futures/transfer', [FutureTransferController::class, 'transfer']);
+            Route::post('update/transfers', [FutureTransferController::class, 'updateTransfer']);
+            Route::apiResource('wallets/future', FutureWalletController::class);
+
+            Route::apiResource('futures/order', FutureController::class);
+
+            Route::get('/api/v1/margin', []);
+
+            
            
             /** For API */
             

@@ -14,7 +14,7 @@ class StoreFutureRequest extends FormRequest
      */
     public function authorize()
     {
-        $user = Auth::user();
+    $user = Auth::user();
         if($user->role == 'CLIENT')
         {
             return true;
@@ -32,9 +32,8 @@ class StoreFutureRequest extends FormRequest
     {
         return [
             //
-            'client_id' => 'required',
-            'coin_pair_id' => 'required',
-            'client_wallet_future_id' => 'required',
+            'name' => 'required',
+            'opening_price' => 'required',
             'leverage' => 'required',
             'margin' => 'required',
         ];

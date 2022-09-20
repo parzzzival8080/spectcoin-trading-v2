@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\LoginRequest;
+use App\Models\Client;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -21,9 +22,9 @@ class AuthController extends Controller
             $token = $user->createToken('LaravelPasswordGrantClient')->accessToken;
             if ($user->role == 'ADMINISTRATOR') {
                 return response(["token" => $token, "user" => $user]);
-            } elseif ($user->role == 'HOSPITAL') {
-                $hospital = Hospital::where('user_id', $user->id)->first();
-                return response(["token" => $token, "user" => $user, "hospital" => $hospital]);
+            } elseif ($user->role == 'CLIENT') {
+                $client = Client::where('user_id', $user->id)->first();
+                return response(["token" => $token, "user" => $user, "client" => $client]);
             } elseif ($user->role == 'OCCUPANT') {
                 $occupant = Occupant::where('user_id', $user->id)->first();
                 return response(["token" => $token, "user" => $user, "occupant" => $occupant]);

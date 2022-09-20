@@ -153,8 +153,6 @@ export default {
             this.color = "transparent";
             this.flat = true;
         }
-        this.getUserGeolocation();
-        this.fetchHospitals();
     },
 
     beforeRouteEnter(to, from, next) {

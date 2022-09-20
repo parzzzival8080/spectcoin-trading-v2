@@ -110,16 +110,6 @@
                                 label="Select Partition"
                             />
                         </v-col>
-                        <v-col cols="12" md="6">
-                            <v-select
-                                :error-messages="formCoinPairErrors.partition"
-                                v-model="editedCoinPairInformation.partition"
-                                :items="itemPartition"
-                                item-text="name"
-                                item-value="id"
-                                label="Select Partition"
-                            />
-                        </v-col>
 
                         <v-col cols="12" md="6">
                             <v-select
@@ -897,22 +887,22 @@ export default {
             console.log(this.editedCoinPairInformation)
             axios
                 .post("/api/v1/coinpairs", {
-                    partition: this.partition,
-                    coin_id: this.coin_id, 
-                    coin_pair_id: this.coin_pair_id,
-                    open_for_trade_status: this.open_for_trade_status,
-                    currency_transaction_status: this.currency_transaction_status,
-                    contract_transaction_status: this.contract_transaction_status,
-                    automatic_collection_status: this.automatic_collection_status,
-                    mainstream_currency_status: this.mainstream_currency_status,
-                    withdrawal_status: this.withdrawal_status,
-                    contract_delivery_cycle: this.contract_delivery_cycle,
-                    queue_number: this.queue_number,
-                    minimum_withdrawal_amount: this.minimum_withdrawal_amount,
-                    withdrawal_fee: this.withdrawal_fee,
-                    account_balance_limit: this.account_balance_limit, 
-                    account_limit_required: this.account_limit_required,
-                    minimum_sell: this.minimum_sell,
+                    partition: this.editedCoinPairInformation.partition,
+                    coin_id: this.editedCoinPairInformation.coin_id, 
+                    coin_pair_id: this.editedCoinPairInformation.coin_pair_id,
+                    open_for_trade_status: this.editedCoinPairInformation.open_for_trade_status,
+                    currency_transaction_status: this.editedCoinPairInformation.currency_transaction_status,
+                    contract_transaction_status: this.editedCoinPairInformation.contract_transaction_status,
+                    automatic_collection_status: this.editedCoinPairInformation.automatic_collection_status,
+                    mainstream_currency_status: this.editedCoinPairInformation.mainstream_currency_status,
+                    withdrawal_status: this.editedCoinPairInformation.withdrawal_status,
+                    contract_delivery_cycle: this.editedCoinPairInformation.contract_delivery_cycle,
+                    queue_number: this.editedCoinPairInformation.queue_number,
+                    minimum_withdrawal_amount: this.editedCoinPairInformation.minimum_withdrawal_amount,
+                    withdrawal_fee: this.editedCoinPairInformation.withdrawal_fee,
+                    account_balance_limit: this.editedCoinPairInformation.account_balance_limit, 
+                    account_limit_required: this.editedCoinPairInformation.account_limit_required,
+                    minimum_sell: this.editedCoinPairInformation.minimum_sell,
                     turnover: 1,
                 })
                 .then(response => {

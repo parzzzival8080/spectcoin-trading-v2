@@ -15,8 +15,8 @@ class CreateClientWalletFuturesTable extends Migration
     {
         Schema::create('client_wallet_futures', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->unsignedBigInteger('client_wallet_id');
-            $table->foreign('client_wallet_id')->references('id')->on('client_wallets')->delete('cascade');
+            $table->unsignedBigInteger('client_id');
+            $table->foreign('client_id')->references('id')->on('clients')->delete('cascade');
             $table->unsignedBigInteger('coin_id');
             $table->foreign('coin_id')->references('id')->on('coins')->delete('cascade');
             $table->double('wallet_balance')->default(0);

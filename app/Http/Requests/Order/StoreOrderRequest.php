@@ -32,10 +32,11 @@ class StoreOrderRequest extends FormRequest
     public function rules()
     {
         return [
-            'coin_pair_id' => 'required',
+            'name' => 'required',
             'order_per_unit' => 'required',
             'number_of_order' => 'required',
-            'delegate_type' => 'required'
+            'delegate_type' => 'required',
+            'balance' => 'nullable'
         ];
     }
 }

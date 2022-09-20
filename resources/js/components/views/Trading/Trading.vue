@@ -45,56 +45,111 @@
           </v-navigation-drawer>
                 <v-card>
                   <v-card-text>
-                    <v-row >                      
+                    <v-row > 
+                                          
                       <v-col cols="6">
-
-                          <v-btn style="margin-right:5px;background-color:green; color:white">Buy</v-btn>
-                          <v-btn style="background-color:red; color:white">Sell</v-btn>
-                  
-
-                          <v-text-field style="color:white" placeholder="AMOUNT ORDER"></v-text-field>
-                          <v-text-field style="color:white" placeholder="PRICE PER COIN"></v-text-field>
-                          <v-btn style="width:100%;background-color:green; color:white" @click="fetchOrder()">Buy</v-btn>
-                      </v-col>
-                      <v-col cols="6">
-                          Orders
+                          <v-btn style="margin-right:5px;background-color:green; color:white" @click="buyButton()">Buy Long</v-btn>
+                          <v-btn style="background-color:red; color:white" @click="sellButton()">Sell Short</v-btn>
+                          <v-text-field style="color:white" placeholder="AMOUNT ORDER" :value="parseFloat(btc.lastPrice).toFixed(4)"></v-text-field>
+                          <v-text-field style="color:white" placeholder="Amount" :value="amount"></v-text-field>
+                          <v-btn :color="buttonColor" style="width:100%; color:white" @click="commitOrder()">{{buttonLabel}}</v-btn>
+                          <v-row style="margin-top:2px">
+                            <v-col cols="3">
+                              <v-sheet 
+                              @click="quarterChange()"
+                              :color="sheetColor25"
+                              elevation="1"
+                              height="10"
+                              width="40px">
+                              </v-sheet>
+                              <center>25</center>
+                            </v-col>
+                            <v-col cols="3">
+                              <v-sheet 
+                              @click="halfChange()"
+                              :color="sheetColor50"
+                              elevation="1"
+                              height="10"
+                              width="40px">
+                              </v-sheet>
+                              <center>50</center>
+                            </v-col>
+                            <v-col cols="3">
+                              <v-sheet 
+                              @click="thirdChange()"
+                              :color="sheetColor75"
+                              elevation="1"
+                              height="10"
+                              width="40px">
+                              </v-sheet>
+                              <center>75</center>
+                              </v-col>
+                            <v-col cols="3">
+                              <v-sheet 
+                              @click="allInChange()"
+                              :color="sheetColor100"
+                              elevation="1"
+                              height="10"
+                              width="40px">
+                              </v-sheet>
+                              <center style="font-size:10px">100</center>
+                            </v-col>
+                          </v-row>
                           <v-row>
-                              <v-col cols="6" md="6">
-                                <span stlye="font-size:8px"> PRICE </span>
+                            <v-col>
+                              Available Balance:
+                            </v-col>
+                            <v-col>
+                              ${{wallet.wallet_balance}}
+                            </v-col>
+                          </v-row>
+                      </v-col>
+                      <v-col cols="3">            
                                   <!-- {{orders.bids}} -->
                                 <div >
+                                  <span stlye="font-size:8px"> AMOUNT </span>
                                   <v-row v-for="(order, index) in orders.bids" :key="index">
-                                    <v-col cols="6">
-                                      <span stlye="font-size:2px"> {{parseFloat(order[0]).toFixed(2)}} </span>
+                                    <v-col cols="12">
+                                      <span style="font-size:10px"> {{parseFloat(order[0]).toFixed(2)}} </span>
                                     </v-col>
-                                    
-                                    <!-- {{order[0]}} -->
-                                    <!-- <div v-for="(bid, index) in order.bids" :key="index">
-                                      {{bid}}
-                                    </div> -->
-                                  </v-row>  
+                                  </v-row> 
+                                  <span stlye="font-size:8px"> AMOUNT </span>
+                                      <v-row v-for="(order, index) in orders.asks" :key="index">
+                                      <v-col cols="12">
+                                      <span style="font-size:10px"> {{parseFloat(order[0]).toFixed(2)}} </span>
+                            </v-col>
+                          </v-row>   
                                 </div>
-                              </v-col>
-                              <v-col cols="6" md="6">
-                                AMOUNT
-                                <v-row v-for="(order, index) in orders.bids" :key="index">
-                                  <v-col cols="6">
-                                      <span stlye="font-size:2px">{{parseFloat(order[1])}}</span>
-                                  </v-col>
-                                  
-                                  <!-- {{order[0]}} -->
-                                  <!-- <div v-for="(bid, index) in order.bids" :key="index">
-                                    {{bid}}
-                                  </div> -->
-                                </v-row> 
-                              </v-col>
-                          </v-row>
-                          <v-row>
-
-                          </v-row>
                       </v-col>
+                      <v-col cols="3">
+                          <div >
+                              <span stlye="font-size:8px"> PRICE </span>
+                              <v-row v-for="(order, index) in orders.bids" :key="index">
+                                <v-col cols="12">
+                                  <span style="font-size:10px"> {{parseFloat(order[1]).toFixed(2)}} </span>
+                                </v-col>
+                              </v-row>  
+                              <span stlye="font-size:8px"> PRICE </span>
+                              <v-row v-for="(order, index) in orders.asks" :key="index">
+                              <v-col cols="12">
+                                  <span style="font-size:10px"> {{parseFloat(order[1]).toFixed(2)}} </span>
+                        </v-col>
+                      </v-row>  
+                            </div>
+                      </v-col>
+                      <!-- <v-col cols="6"></v-col> -->
+                      <v-col cols="3">            
+                          <!-- {{orders.bids}} -->
+                      <div>
                           
-                    </v-row>
+                      </div>
+              </v-col>
+              <v-col cols="3">
+                  <div >
+                      
+                    </div>
+              </v-col>
+              </v-row>
                   </v-card-text>
                 </v-card>
               </v-card>
@@ -116,7 +171,16 @@ export default {
           fab: null,
           userId: sessionStorage.getItem("user-id"),
           color: "",
+          buttonColor: "green",
+          sheetColor25: "white",
+          sheetColor50: "white",
+          sheetColor75: "white",
+          sheetColor100: "white",
+          buttonLabel: "BUY",
+          finalSymbol: '',
+          balance: '',
           flat: null,
+          amount_to_buy: '',
           btc: [],
           eth: [],
           xrp: [],
@@ -127,6 +191,10 @@ export default {
           shib: [],
           galx: [],
           orders: [],
+          price: [],
+          wallet: [],
+          amount: [],
+          timer: '',
 
           errors: [],
 
@@ -152,12 +220,204 @@ export default {
   },
 
   methods: {
+    buyButton()
+    
+    {
+      this.amount = 0
+      this.buttonColor = "green"
+      this.buttonLabel = "BUY"
+      this.sheetColor25 = "white"
+      this.sheetColor50 = "white"
+      this.sheetColor75 = "white"
+      this.sheetColor100 = "white"
+      axios.get('/api/v1/wallet-balance', {
+        params: {
+          'name': 'USDT',
+        }
+      })
+      .then(response => {
+        this.wallet = response.data.wallet
+      })
+
+    },
+
+    sellButton()
+    {
+      this.amount = 0
+      const symbol = this.btc.symbol
+      this.sheetColor25 = "white"
+      this.sheetColor50 = "white"
+      this.sheetColor75 = "white"
+      this.sheetColor100 = "white"
+      this.finalSymbol = symbol.replace('USDT', '')
+      console.log(this.finalSymbol)
+      this.buttonColor = "red"
+      this.buttonLabel = "SELL"
+
+      axios.get('/api/v1/wallet-balance', {
+        params: {
+          'name': this.finalSymbol,
+        }
+      })
+      .then(response => {
+        this.wallet = response.data.wallet
+      })
+
+
+    },
+
+    commitOrder()
+    {
+      var symbol = this.btc.symbol
+      this.finalSymbol = symbol.replace('USDT', '')
+      console.log(this.finalSymbol)
+      axios.post('/api/v1/order', 
+      {
+        name: this.finalSymbol,
+        order_per_unit: this.price,
+        number_of_order: this.amount,
+        delegate_type: this.buttonLabel,
+        balance: this.balance
+      })
+      .then(response => {
+
+      })
+    },
+    
+
+    order()
+    {
+      const userRole = sessionStorage.getItem('user-type')
+        if(userRole == null)
+        {
+          this.$router.push('/login')
+        }
+        else{ 
+          console.log('working')
+        }
+    },
+    quarterChange()
+    {
+      if(this.buttonLabel == 'BUY')
+      {
+        console.log("working") 
+        this.sheetColor25 = "green"
+        this.sheetColor50 = "white"
+        this.sheetColor75 = "white"
+        this.sheetColor100 = "white"
+
+        this.amount = (this.wallet.wallet_balance / 4) / this.btc.lastPrice
+        this.balance = this.wallet.wallet_balance / 4
+      }
+      else if(this.buttonLabel == 'SELL')
+      {
+        console.log("working") 
+        this.sheetColor25 = "green"
+        this.sheetColor50 = "white"
+        this.sheetColor75 = "white"
+        this.sheetColor100 = "white"
+
+        this.amount = (this.wallet.wallet_balance / 4) * this.btc.lastPrice
+        this.balance = this.wallet.wallet_balance / 4
+      }
+      
+        // this.sheetColor = "green"
+        
+    },
+    halfChange()
+    {
+      if(this.buttonLabel == 'BUY')
+      {
+        console.log("working") 
+        this.sheetColor25 = "green"
+        this.sheetColor50 = "green"
+        this.sheetColor75 = "white"
+        this.sheetColor100 = "white"
+
+        this.amount = (this.wallet.wallet_balance / 2) / this.btc.lastPrice
+        this.balance = this.wallet.wallet_balance / 2
+      }
+      else if(this.buttonLabel == 'SELL')
+      {
+        console.log("working") 
+        this.sheetColor25 = "green"
+        this.sheetColor50 = "green"
+        this.sheetColor75 = "white"
+        this.sheetColor100 = "white"
+
+        this.amount = (this.wallet.wallet_balance / 2) * this.btc.lastPrice
+        this.balance = this.wallet.wallet_balance / 2
+      }
+        // this.sheetColor = "green"
+        
+    },
+    thirdChange()
+    {
+      if(this.buttonLabel == 'BUY')
+      {
+        console.log("working") 
+        this.sheetColor25 = "green"
+        this.sheetColor50 = "green"
+        this.sheetColor75 = "green"
+        this.sheetColor100 = "white"
+        console.log(this.wallet.wallet_balance)
+        console.log(this.btc.lastPrice)
+        this.amount = ((this.wallet.wallet_balance / 4) * 3) / this.btc.lastPrice
+        this.balance = (this.wallet.wallet_balance / 4) * 3
+      }
+      else if(this.buttonLabel == 'SELL')
+      {
+        console.log("working") 
+        this.sheetColor25 = "green"
+        this.sheetColor50 = "green"
+        this.sheetColor75 = "green"
+        this.sheetColor100 = "white"
+        console.log(this.wallet.wallet_balance)
+        console.log(this.btc.lastPrice)
+        this.amount = ((this.wallet.wallet_balance / 4) * 3) * this.btc.lastPrice
+        this.balance = (this.wallet.wallet_balance / 4) * 3
+      }
+      
+    },
+    allInChange()
+    {
+      if(this.buttonLabel == 'BUY')
+      {
+        console.log("working") 
+        this.sheetColor25 = "green"
+        this.sheetColor50 = "green"
+        this.sheetColor75 = "green"
+        this.sheetColor100 = "green"
+
+        console.log(this.wallet.wallet_balance)
+        console.log(this.btc.lastPrice)
+
+        this.amount =this.wallet.wallet_balance / this.btc.lastPrice
+        this.balance = this.wallet.wallet_balance
+      }
+      else if(this.buttonLabel == 'SELL')
+      {
+        console.log("working") 
+        this.sheetColor25 = "green"
+        this.sheetColor50 = "green"
+        this.sheetColor75 = "green"
+        this.sheetColor100 = "green"
+
+        console.log(this.wallet.wallet_balance)
+        console.log(this.btc.lastPrice)
+
+        this.amount =this.wallet.wallet_balance * this.btc.lastPrice
+        this.balance = this.wallet.wallet_balance 
+      }
+        // this.sheetColor = "green"
+        
+    },
     fetchOrder()
     { 
         axios.get('/api/v1/getOrder')
         .then(response => {
                       this.orders = response.data.result
-                      console.log(this.orders)
+                      this.price = response.data.price
                   })
               .catch(error => {
                   console.log(error);
@@ -166,19 +426,39 @@ export default {
                  
               });
     },  
+
+    fetchWalletBuy()
+    {
+      /** if buy select usdt coin else get symbol */
+      this.buttonColor = "green"
+      this.buttonLabel = "BUY"
+      axios.get('/api/v1/wallet-balance', {
+        params: {
+          'name': 'USDT',
+        }
+      })
+      .then(response => {
+        this.wallet = response.data.wallet
+      })
+    },
+
+    fetchWalletSell()
+    {
+      /** if buy select usdt coin else get symbol */
+      axios.get('/api/v1/wallet-balance', {
+        params: {
+          'coin_id': 1,
+        }
+      })
+      .then(response => {
+        this.wallet = response.data.wallet
+      })
+    },
       fetchMarket() {
           axios
               .get('/api/v1/top-list')
               .then(response => {
                       this.btc = response.data.btc
-                      this.eth = response.data.eth
-                      this.xrp = response.data.xrp
-                      this.ada = response.data.cardano
-                      this.sol = response.data.sol
-                      this.doge = response.data.doge
-                      this.polkadot = response.data.polkadot
-                      this.shib = response.data.shib
-                      this.galx = response.data.galx
                   })
               .catch(error => {
                   console.log(error);
@@ -218,6 +498,11 @@ export default {
           this.color = "transparent";
           this.flat = true;
       }
+      this.fetchWalletBuy()
+      this.fetchOrder()
+      this.fetchMarket()
+      this.timer = setInterval(this.fetchOrder, 3000);
+
   },
 
   beforeRouteEnter(to, from, next) {

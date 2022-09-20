@@ -28,7 +28,11 @@ import AdminLiveData from '../components/views/Administrator/Settings/LiveDataCh
 /** Clients */
 import ClientLanding from '../components/views/ClientLanding.vue'
 import ClientTrading from '../components/views/Trading/Trading.vue'
-
+import ClientFuture from '../components/views/Trading/Futures.vue'
+import ClientWallet from '../components/views/Wallet/ClientWallet.vue'
+import ClientWalletFuture from '../components/views/Wallet/ClientWalletFuture.vue'
+import ClientWalletDeposit from '../components/views/Wallet/ClientWalletDeposit.vue'
+import ClientWalletWithdraw from '../components/views/Wallet/ClientWalletWithdraw.vue'
 
 
 
@@ -68,6 +72,10 @@ let clientRoutes = {
     path: "/",
     component: ClientLanding,
     name: "ClientLanding",
+
+    path: "/wallet",
+    component: ClientWallet,
+    name: "ClientWallet"
 }
 
 const routes = [
@@ -96,13 +104,18 @@ const routes = [
   }, 
 
   {path: "/spot/orders", name: "coin-pairs", components: { default: ClientTrading}},
+  {path: "/future/orders", name: "coin-pairs", components: { default: ClientFuture}},
+  {path: "/wallet/spot", name: "coin-pairs", components: { default: ClientWallet}},
+  {path: "/wallet/future", name: "coin-pairs", components: { default: ClientWalletFuture}},
+  {path: "/wallet/deposit", name: "coin-pairs", components: { default: ClientWalletDeposit}},
+  {path: "/wallet/withdraw", name: "coin-pairs", components: { default: ClientWalletWithdraw}},
 
   {
     path: "/",
     component: ClientLanding,
     name: "ClientLanding",
 },
-  adminRoutes
+  adminRoutes, 
 ];
 
 export default routes;

@@ -680,7 +680,7 @@ export default {
             this.editedCustomerIndex = this.tableCustomers.indexOf(customer);
             this.editedCustomerInformation = Object.assign({}, customer);
             axios
-                .get("/api/v1/wallets", {
+                .get("/api/v1/wallets/spot", {
                     params: {
                        client_id: this.editedCustomerInformation.id
                     }

@@ -9,7 +9,7 @@ class ClientWalletFuture extends Model
     //
 
     protected $fillable = [
-        'client_wallet_id', 'coin_pair_id', 'wallet_balance'
+        'client_id', 'coin_id', 'wallet_balance'
     ];
 
     public function coinWallet()
@@ -17,9 +17,14 @@ class ClientWalletFuture extends Model
         return $this->belongsTo(ClientWallet::class, 'client_wallet_id', 'id');
     }
 
-    public function coinPair()
+    public function client()
     {
-        return $this->belongsTo(CoinPair::class, 'coin_pair_id', 'id');
+        return $this->belongsTo(Client::class, );
+    }
+
+    public function coin()
+    {
+        return $this->belongsTo(Coin::class, 'coin_id', 'id');
     }
 
 }
