@@ -28,13 +28,17 @@ class FutureController extends Controller
 
         if($auth->role == 'ADMINISTRATOR')
         {
-            $future = Future::with('client', 'coin')->get();
+            $future = Future::with('client', 'coinPair')->get();
         }
         elseif($auth->role == 'CLIENT')
         {
             $client = Client::where('user_id', $auth->id)->first();
             $future = Future::where('client_id', $client->id)->orderBy('id', 'DESC')->first();
         }
+
+        return response()->json([
+            'future' => $future 
+        ]);
     }
 
     /**

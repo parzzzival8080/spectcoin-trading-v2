@@ -82,7 +82,7 @@ Route::group(['middleware' => 'forceJsonResponse'], function () {
 
             Route::get('margin', [FutureController::class, 'margin']);
 
-            
+           Route::get('future-records', [FutureController::class, 'index']); 
            
             /** For API */
             

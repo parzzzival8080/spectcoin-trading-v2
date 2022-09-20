@@ -46,392 +46,13 @@
                                 }}
                             </template> -->
                             <template v-slot:item.actions="{ item }">
-                                <v-btn icon @click="editFuture(item)">
-                                    <v-icon>mdi-pencil</v-icon>
-                                </v-btn>
-                                <v-btn icon @click="fetchAssets(item)">
-                                    <v-icon>mdi-bitcoin</v-icon>
-                                </v-btn>
-                                <v-btn icon @click="addRecharge(item)">
-                                    <v-icon>mdi-cash</v-icon>
-                                </v-btn>
-                                <v-btn icon @click="deleteFuture(item)">
-                                    <v-icon>mdi-delete</v-icon>
-                                </v-btn>
+                                
                             </template>
                         </v-data-table>
                     </v-container>
                 </v-card>
             </v-col>
         </v-row>
-        <!-- <v-dialog v-model="formFutureDialog" max-width="800px" persistent>
-            <v-card>
-                <v-overlay :value="componentOverlay">
-                    <v-progress-circular
-                        :size="100"
-                        :width="5"
-                        indeterminate
-                    ></v-progress-circular>
-                </v-overlay>
-                <v-card-title class="headline">
-                    {{ formFutureTitle }}
-                </v-card-title>
-                <v-card-text>
-                    <v-row justify="center">
-                        <v-col cols="12" md="6">
-                            <v-text-field
-                                type="text"
-                                :error-messages="
-                                    formFutureErrors.user.username
-                                "
-                                v-model="
-                                    editedFutureInformation.user.username
-                                "
-                                label="Username"
-                            />
-                        </v-col>
-                        <v-col cols="12" md="6">
-                            <v-text-field
-                                v-model="
-                                    editedFutureInformation.user.password
-                                "
-                                label="Password"
-                                id="password"
-                                name="password"
-                                prepend-icon="fa-lock"
-                                :append-icon="
-                                    visible ? 'mdi-eye-off' : 'mdi-eye'
-                                "
-                                @click:append="visible = !visible"
-                                :rules="rules.passwordRules"
-                                :type="visible ? 'text' : 'password'"
-                                @keydown.enter="login()"
-                            />
-                        </v-col>
-                    </v-row>
-                    <v-row justify="center">
-                        <v-col cols="12" md="4">
-                            <v-text-field
-                                type="text"
-                                :error-messages="formFutureErrors.name"
-                                v-model="editedFutureInformation.name"
-                                label="Name"
-                            />
-                        </v-col>
-                        <v-col cols="12" md="4">
-                            <v-text-field
-                                type="text"
-                                :error-messages="formFutureErrors.number"
-                                v-model="editedFutureInformation.number"
-                                label="Number"
-                            />
-                        </v-col>
-                        <v-col cols="12" md="4">
-                            <v-select
-                                :error-messages="formFutureErrors.status"
-                                v-model="editedFutureInformation.status"
-                                label="Status"
-                            />
-                        </v-col>
-                        <v-col cols="12">
-                            <v-text-field
-                                type="text"
-                                :error-messages="formFutureErrors.address"
-                                v-model="editedFutureInformation.address"
-                                label="Address"
-                            />
-                        </v-col>
-                    </v-row>
-                    <v-row
-                        ><v-col cols="12">
-                            
-                    </v-col>
-                    </v-row>
-                </v-card-text>
-                <v-card-actions>
-                    <v-spacer></v-spacer>
-                    <v-btn class="px-12" text @click="closeFutureForm"
-                        >Cancel</v-btn
-                    >
-                    <v-btn class="px-12" @click="saveFuture" color="primary"
-                        >Save</v-btn
-                    >
-                </v-card-actions>
-            </v-card>
-        </v-dialog> -->
-
-        <!-- For Editing -->
-        <v-dialog v-model="formFutureDialog" max-width="800px" persistent>
-            <v-card>
-                <v-overlay :value="componentOverlay">
-                    <v-progress-circular
-                        :size="100"
-                        :width="5"
-                        indeterminate
-                    ></v-progress-circular>
-                </v-overlay>
-                <v-card-title class="headline">
-                    {{ formFutureTitle }}
-                </v-card-title>
-                <v-card-text>
-                    <v-row justify="center">
-                        <!-- <v-col cols="12" md="6">
-                            <v-text-field
-                                v-model="
-                                    editedFutureInformation.user.password
-                                "
-                                label="Password"
-                                id="password"
-                                name="password"
-                                prepend-icon="fa-lock"
-                                :append-icon="
-                                    visible ? 'mdi-eye-off' : 'mdi-eye'
-                                "
-                                @click:append="visible = !visible"
-                                :rules="rules.passwordRules"
-                                :type="visible ? 'text' : 'password'"
-                            />
-                        </v-col> -->
-                    </v-row>
-                    
-                    <v-row justify="center">
-                        <v-col cols="12" md="6">
-                            <v-text-field
-                                type="text"
-                                :error-messages="
-                                    formFutureErrors.user.username
-                                "
-                                v-model="
-                                    editedFutureInformation.user.username
-                                "
-                                label="Username"
-                            />
-                        </v-col>
-                        <v-col cols="12" md="6">
-                            <v-text-field
-                                type="text"
-                                :error-messages="formFutureErrors.nickname"
-                                v-model="editedFutureInformation.nickname"
-                                label="Nickname"
-                            />
-                        </v-col>
-                        <v-col cols="12" md="6">
-                            <v-text-field
-                                type="text"
-                                :error-messages="formFutureErrors.number"
-                                v-model="editedFutureInformation.mobile_number"
-                                label="Mobile Number"
-                            />
-                        </v-col>
-                        <v-col cols="12" md="6">
-                            <v-select
-                                :error-messages="formFutureErrors.status"
-                                v-model="editedFutureInformation.status"
-                                :items="item_status"
-                                item-text="name"
-                                item-value="value"
-                                label="Status"
-                            />
-                        </v-col>
-                        <v-col cols="12" md="6">
-                            <v-text-field
-                                type="text"
-                                :error-messages="formFutureErrors.address"
-                                v-model="editedFutureInformation.referal_email"
-                                label="Referal Email"
-                            />
-                        </v-col>
-                        <v-col cols="12" md="6">
-                            <v-select
-                                :error-messages="formFutureErrors.status"
-                                v-model="editedFutureInformation.withdraw_transfer_status"
-                                :items="item_withdraw_and_transfer"
-                                item-text="name"
-                                item-value="value"
-                                label="Withdraw and Transfer Status"
-                            />
-                        </v-col>
-                        <v-col cols="12" md="6">
-                            <v-select
-                                :error-messages="formFutureErrors.status"
-                                v-model="editedFutureInformation.membership_level"
-                                :items="item_membership_level"
-                                item-text="name"
-                                item-value="value"
-                                
-                                label="Membership Level"
-                            />
-                        </v-col>
-                    </v-row>
-                    <v-row
-                        ><v-col cols="12">
-                            
-                    </v-col>
-                    </v-row>
-                </v-card-text>
-                <v-card-actions>
-                    <v-spacer></v-spacer>
-                    <v-btn class="px-12" text @click="closeFutureForm"
-                        >Cancel</v-btn
-                    >
-                    <v-btn class="px-12" @click="saveFuture" color="primary"
-                        >Save</v-btn
-                    >
-                </v-card-actions>
-            </v-card>
-        </v-dialog>
-
-        <v-dialog v-model="formRechargeDialog" max-width="800px" persistent>
-            <v-card>
-                <v-overlay :value="componentOverlay">
-                    <v-progress-circular
-                        :size="100"
-                        :width="5"
-                        indeterminate
-                    ></v-progress-circular>
-                </v-overlay>
-                <v-card-title class="headline">
-                    Recharge
-                </v-card-title>
-                <v-card-text>
-                    <v-row justify="center">
-                        <!-- <v-col cols="12" md="6">
-                            <v-text-field
-                                v-model="
-                                    editedFutureInformation.user.password
-                                "
-                                label="Password"
-                                id="password"
-                                name="password"
-                                prepend-icon="fa-lock"
-                                :append-icon="
-                                    visible ? 'mdi-eye-off' : 'mdi-eye'
-                                "
-                                @click:append="visible = !visible"
-                                :rules="rules.passwordRules"
-                                :type="visible ? 'text' : 'password'"
-                            />
-                        </v-col> -->
-                    </v-row>
-                    
-                    <v-row justify="center">
-
-                        <v-col cols="12" md="6">
-                            <v-select
-                                :error-messages="formRechargeErrors.coin"
-                                v-model="defaultRechargeInformation.coin"
-                                :items="itemCoins"
-                                item-text="name"
-                                item-value="id"
-                                label="Select Coin"
-                            />
-                        </v-col>
-                        <v-col cols="12" md="6">
-                            <v-select
-                                :error-messages="formRechargeErrors.included_in_performance"
-                                v-model="defaultRechargeInformation.transaction_type"
-                                :items="item_transaction_type"
-                                item-text="name"
-                                item-value="value"
-                                label="Transaction Type"
-                            />
-                        </v-col>
-                        <v-col cols="12" md="6">
-                            <v-select
-                                :error-messages="formRechargeErrors.included_in_performance"
-                                v-model="defaultRechargeInformation.included_in_performance"
-                                :items="item_ip"
-                                item-text="name"
-                                item-value="value"
-                                label="Included in Performance"
-                            />
-                        </v-col>
-                        <v-col cols="12" md="6">
-                            <v-text-field
-                                type="number"
-                                :error-messages="formRechargeErrors.amountRule"
-                                :rules="rules.amountRules"
-                                v-model="defaultRechargeInformation.amount"
-                                label="Amount"
-                                oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');"
-                            />
-                        </v-col>
-                    </v-row>
-                </v-card-text>
-                <v-card-actions>
-                    <v-spacer></v-spacer>
-                    <v-btn class="px-12" text @click="closeFutureForm"
-                        >Cancel</v-btn
-                    >
-                    <v-btn class="px-12" @click="saveRecharge" color="primary"
-                        >Save</v-btn
-                    >
-                </v-card-actions>
-            </v-card>
-        </v-dialog>
-
-        <v-dialog v-model="formAssetsDialog" max-width="1200px" persistent>
-            <v-card>
-                <v-overlay :value="componentOverlay">
-                    <v-progress-circular
-                        :size="100"
-                        :width="5"
-                        indeterminate
-                    ></v-progress-circular>
-                </v-overlay>
-                <v-card-title class="headline">
-                    Future Asset
-                </v-card-title>
-                <v-card-text>            
-                        <v-container>
-                            <v-data-table
-                                :loading="tableLoading"
-                                loading-text="Fetching Future Asset's list... Please wait"
-                                :headers="tableFutureAssetsHeaders"
-                                :items="tableAssets"
-                                :search="tableSearch"
-                            >
-                                <template v-slot:top>
-                                    <v-toolbar flat>
-                                        <v-toolbar-title class="headline"
-                                            >Futures</v-toolbar-title
-                                        >
-                                        <div class="flex-grow-1"></div>
-                                        <!-- <v-btn
-                                            small
-                                            @click="formFutureDialog = true"
-                                            color="primary"
-                                        >
-                                            <v-icon small left
-                                                >mdi-plus-circle</v-icon
-                                            >
-                                            Add Offline 
-                                        </v-btn> -->
-                                    </v-toolbar>
-                                </template>
-                                <!-- <template v-slot:item.id="{ item }">
-                                    {{
-                                        tableFutures
-                                            .map(function(x) {
-                                                return x.id;
-                                            })
-                                            .indexOf(item.id) + 1
-                                    }}
-                                </template> -->
-                                <template v-slot:item.actions="{ item }">
-                                   
-                                </template>
-                            </v-data-table>
-                        </v-container>
-                </v-card-text>
-                <v-card-actions>
-                    <v-spacer></v-spacer>
-                    <v-btn class="px-12" text @click="closeFutureForm"
-                        >Close</v-btn
-                    >
-                </v-card-actions>
-            </v-card>
-        </v-dialog>
     </v-container>
 </template>
 
@@ -508,22 +129,22 @@ export default {
 
             tableFutureHeaders: [
                 { text: "Serial Number", value: "id" },
-                { text: "Trading Pair", value: "role" },
-                { text: "Email", value: "email" },
-                { text: "Role", value: "delegate_type" },
+                { text: "Trading Pair", value: "" },
+                { text: "Email", value: "client.email" },
+                { text: "Role", value: "client.role" },
                 { text: "Type", value: "trading_pair" },
-                { text: "Opening Price", value: "state" },
-                { text: "Leverage", value: "number_of_orders" },
-                { text: "Estimated Force Parity", value: "" },
-                { text: "Margin", value: "client_referal_id" },
-                { text: "Open Interest", value: "withdraw_transfer_status" },
-                { text: "Current Price", value: "volume" },
-                { text: "Manual Closing is not Allowed", value: "" },
-                { text: "Reached Stop Loss Difference", value: "" },
+                { text: "Opening Price", value: "opening_price" },
+                { text: "Leverage", value: "leverage" },
+                { text: "Estimated Force Parity", value: "estimated_force_parity" },
+                { text: "Margin", value: "margin" },
+                { text: "Open Interest", value: "open_interest" },
+                { text: "Current Price", value: "current_price" },
+                { text: "Manual Closing is not Allowed", value: "manual_closing_allowed" },
+                { text: "Reached Stop Loss Difference", value: "reached_stop_loss_difference" },
                 { text: "Total Assets", value: "" },
-                { text: "Reach take Profit Difference", value: "" },
-                { text: "Income", value: "" },
-                { text: "Rate of return", value: "" },
+                { text: "Reach take Profit Difference", value: "reached_take_profit_difference" },
+                { text: "Income", value: "income" },
+                { text: "Rate of return", value: "rate_of_return" },
 
                 {
                     text: "Actions",
@@ -643,9 +264,10 @@ export default {
             this.tableLoading = true;
             this.componentOverlay = true;
             axios
-                .get("/api/v1/futures")
+                .get("/api/v1/future-records")
                 .then(response => {
-                    this.tableFutures = response.data.futures;
+                    this.tableFutures = response.data.future;
+                    console.log(this.tableFutures)
                 })
                 .catch(error => {
                     console.log(error);
