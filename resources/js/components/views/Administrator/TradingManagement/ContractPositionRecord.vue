@@ -75,6 +75,8 @@ export default {
             formRechargeDialog: false,
             formFutureListDialog: false,
             formAssetsDialog: false,
+            timer: null,
+            timerTable: null,
 
             formFutureErrors: {
                 name: null,
@@ -141,7 +143,7 @@ export default {
                 { text: "Current Price", value: "current_price" },
                 { text: "Manual Closing is not Allowed", value: "manual_closing_allowed" },
                 { text: "Reached Stop Loss Difference", value: "reached_stop_loss_difference" },
-                { text: "Total Assets", value: "" },
+                { text: "Total Assets", value: "total_asset" },
                 { text: "Reach take Profit Difference", value: "reached_take_profit_difference" },
                 { text: "Income", value: "income" },
                 { text: "Rate of return", value: "rate_of_return" },
@@ -258,7 +260,22 @@ export default {
         this.fetchCoins();
     },
 
+    created()
+    {
+        this.timer = setInterval(this.updateOngoingFuture, 3000)
+        this.timerTable = setInterval(this.fetchFutures, 3000)
+    },
+    
+
     methods: {
+
+        updateOngoingFuture()
+        {
+            axios.get('/api/v1/ongoing/future')
+            .then(response => {
+
+            })
+        },
 
         fetchFutures() {
             this.tableLoading = true;

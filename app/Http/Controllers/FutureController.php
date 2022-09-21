@@ -248,4 +248,55 @@ class FutureController extends Controller
             'margin' => $future 
         ]);
     }
+
+    public function updateFuture()
+    {
+        $futures = Future::where('status', 'LOCKED')->get();
+
+        foreach($futures as $future)
+        {
+            
+            $coinpair = CoinPair::where('id', $future['coin_pair_id'])->first();
+            // dd($coinpair);
+            if($coinpair->pair_type == 'MAIN')
+            {
+                $coin = Coin::where('id', $coinpair->coin_id)->first();
+                // dd($coin);
+                $binance = new BinanceAPI();
+                
+                $price = $binance->getTicker($coin->name.'USDT');
+                // dd($price);
+
+                $current_price = $price['lastPrice'];
+
+                /** Get Stop loss difference by margin * leverage  */
+                
+
+                /** Reach take profit  difference*/
+                // $reached_take_profit_difference = 
+
+                $total_asset = (($future['margin'] / $future['opening_price']) * $future['leverage']) * $price['lastPrice'];
+
+                $stop_loss_difference = $total_asset - $future['open_interest'];
+
+                /** Get income by stop loss difference - margin */
+                $income = $stop_loss_difference - $future['margin'];
+
+                /** Get rate of return by (current price - old price / old price) * 100  * leverage*/
+                $rate_of_return = ((($price['lastPrice'] - $future['opening_price'])  / ($future['opening_price'])) * $future['leverage']);
+                
+
+                $reach_take_profit_difference = $total_asset / $future['leverage'];
+
+                $future->update([
+                    'current_price' => $price['lastPrice'],
+                    'reached_stop_loss_difference' => $stop_loss_difference,
+                    'reached_take_profit_difference' => $reach_take_profit_difference,
+                    'total_asset' => $total_asset,
+                    'income' => $income,
+                    'rate_of_return' => number_format((float)$rate_of_return, 2, '.', ''),
+                ]);
+            }
+        }
+    }
 }

@@ -60,12 +60,12 @@ class BinanceAPIController extends Controller
 
     public function getOrder(Request $request)
     {
-    
 
         $response = Http::get('https://binance.com/api/v3/depth?limit=5&symbol=BTCUSDT')->json();
         $binance = new BinanceAPI();
         $btc = 'BTCUSDT';
         $btcPrice = $binance->getTicker($btc);
+        // dd($response);
     
 
         return response()->json([

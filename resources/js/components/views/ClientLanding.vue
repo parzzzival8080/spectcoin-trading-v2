@@ -3,7 +3,6 @@
   <v-app>
     <v-card
       class="mx-auto overflow-hidden"
-  
       height="100%"
     >
             <v-app-bar
@@ -44,7 +43,47 @@
               </v-list-item-group>
             </v-list>
           </v-navigation-drawer>
-    
+          <v-bottom-navigation
+          absolute
+          dark
+          color="white"
+          horizontal
+          scroll-target="#scroll-threshold-example"
+          scroll-threshold="500"
+          shift
+          
+        >
+          <v-btn @click="$router.push('/')">       
+            <span>Home</span>
+            <v-icon>mdi-home</v-icon>
+          </v-btn>
+
+          <v-btn @click="$router.push('/')">
+            <span>Market</span>
+
+            <v-icon>mdi-chart-line-stacked</v-icon>
+          </v-btn>
+
+          <v-btn @click="openTrade()">
+            <span>Trade</span>
+            <v-icon>mdi-briefcase-arrow-left-right-outline</v-icon>
+          </v-btn>
+          <v-btn @click="openFuture()">
+            <span>Futures</span>
+
+            <v-icon>mdi-autorenew</v-icon>
+          </v-btn>
+          <v-btn @click="openWallet()">
+            <span>Assets</span>
+
+            <v-icon>mdi-wallet-outline</v-icon>
+          </v-btn>
+          </v-bottom-navigation>
+          <v-sheet
+      id="scroll-threshold-example"
+      class="overflow-y-auto pb-16"
+      max-height="850"
+    >
           <section >
               <v-carousel
                   cycle
@@ -288,32 +327,6 @@
                                                       </v-col>
                                                       </v-row>  
 
-                                                      <v-row justify-center>
-                                                        <!-- polkadot -->
-                                                          <v-col cols="4" md="4" sm="4">
-                                                            <span style="color:white">{{polkadot.symbol}}</span>
-                                                          </v-col>
-                                                          <v-col cols="4" md="4" sm="4">
-                                                            <span style="color:red" v-if="polkadot.priceChangePercent < 0">
-                                                              {{(parseFloat(polkadot.lastPrice).toFixed(4))}}
-                                                            </span>
-                                                            <span style="color:green" v-if="polkadot.priceChangePercent > 0">
-                                                              {{(parseFloat(polkadot.lastPrice).toFixed(4))}}
-                                                            </span>
-                                                          </v-col>
-                                                          <v-col cols="4" md="4" sm="4">
-                                                            <v-card style="border:solid; radius:5px; background-color:red; padding: 5px" v-if="polkadot.priceChangePercent < 0">
-                                                              <center>
-                                                                <span style="color:white; padding:5px">{{polkadot.priceChangePercent}}%</span>
-                                                              </center> 
-                                                            </v-card>
-                                                            <v-card style="border:solid; radius:5px; background-color:green; padding: 5px" v-if="polkadot.priceChangePercent > 0">
-                                                              <center>
-                                                                <span style="color:white; padding:5px">{{polkadot.priceChangePercent}}%</span>
-                                                              </center> 
-                                                            </v-card>
-                                                          </v-col>
-                                                          </v-row>
 
                                                           <v-row justify-center>
                                                             <!-- shib -->
@@ -373,7 +386,9 @@
                   
           </v-container>
           </section>
-          
+
+          <v-responsive></v-responsive>
+        </v-sheet>
         </v-card>
   </v-app>
 </template>
@@ -400,6 +415,7 @@ export default {
           shib: [],
           galx: [],
           errors: [],
+          timer: '',
 
           items: [
               {
@@ -420,6 +436,7 @@ export default {
 
   mounted() {
       this.fetchMarket()
+      this.timer = setInterval(this.fetchMarket, 3000)
   },
 
   methods: {
@@ -444,6 +461,30 @@ export default {
               .finally(() => {
                  
               });
+      },
+
+      openTrade()
+      {
+        clearInterval(this.timer)
+        this.$router.push('/spot/orders')
+      },
+
+      openMarket()
+      {
+        clearInterval(this.timer)
+        this.$router.push('/market')
+      },
+
+      openFuture()
+      {
+        clearInterval(this.timer)
+        this.$router.push('/future/orders')
+      },
+
+      openWallet()
+      {
+        clearInterval(this.timer)
+        this.$router.push('/wallet/spot')
       },
 
       onScroll(e) {

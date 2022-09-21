@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Coin;
 use App\Models\CoinChartData;
+use App\Models\CoinPair;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
@@ -19,7 +21,7 @@ class CoinChartDataController extends Controller
         $date = Carbon::now()->subDay(1);
         $dateCandleClose = $date."23:59:50" ; //21:48:09
         $data = CoinChartData::where('coin_pair_id', $request->input('coin_pair_id'))->orderBy('date', 'ASC')->get();
-        $dailyHigh = CoinChartData::where('coin_pair_id', $request->input('coin_pair_id'))->whereBetween($date."00:00:00", $dateCandleClose)->max('close')    ->first();
+        $dailyHigh = CoinChartData::where('coin_pair_id', $request->input('coin_pair_id'))->whereBetween($date."00:00:00", $dateCandleClose)->max('close')->first();
         $dailyLow = CoinChartData::where('coin_pair_id', $request->input('coin_pair_id')->whereBetween($date."00:00:00", $dateCandleClose))->min('close')->first();
         $dailyHighVol = CoinChartData::where('coin_pair_id', $request->input('coin_pair_id'))->whereBetween($date."00:00:00", $dateCandleClose)->max('volume')->first();
         $dailyLowVol = CoinChartData::where('coin_pair_id', $request->input('coin_pair_id'))->whereBetween($date."00:00:00", $dateCandleClose)->min('volume')->first();
@@ -29,8 +31,6 @@ class CoinChartDataController extends Controller
         $getPercentage = ($getPreviousPrice->close - $current_price->close) / $getPreviousPrice->close;
         
         
-        
-
         return response()->json([
             'chart' => $data,
             'daily_high' =>$dailyHigh,
@@ -106,5 +106,46 @@ class CoinChartDataController extends Controller
     public function destroy($id)
     {
         //
+    }
+
+    public function retrieveChartData(Request $request)
+    {
+        
+        $coin = Coin::where('name', $request->input('name'))->first();
+
+        $coinPair = CoinPair::where('coin_id', $coin->id)->first();
+
+        if($coinPair->pair_type == 'MAIN')
+        {
+
+        }
+        else {
+            $coinChart = CoinChartData::where('coin_pair_id', $coinPair->id)->get();
+
+            $date = Carbon::now()->subDay(1);
+            $dateCandleClose = $date."23:59:50" ; //21:48:09
+            $data = CoinChartData::where('coin_pair_id', $coinPair->id)->orderBy('date', 'ASC')->get();
+            $dailyHigh = CoinChartData::where('coin_pair_id', $coinPair->id)->whereBetween($date."00:00:00", $dateCandleClose)->max('close')->first();
+            $dailyLow = CoinChartData::where('coin_pair_id', $coinPair->id)->whereBetween($date."00:00:00", $dateCandleClose)->min('close')->first();
+            $dailyHighVol = CoinChartData::where('coin_pair_id', $coinPair->id)->whereBetween($date."00:00:00", $dateCandleClose)->max('volume')->first();
+            $dailyLowVol = CoinChartData::where('coin_pair_id', $coinPair->id)->whereBetween($date."00:00:00", $dateCandleClose)->min('volume')->first();
+            $getPreviousPrice = CoinChartData::where('coin_pair_id', $coinPair->id)->whereBetween($date."00:00:00", $dateCandleClose)->orderBy('date', 'DESC')->first();
+
+            $current_price = CoinChartData::where('coin_pair_id', $request->input('coin_pair_id'))->orderBy('date', 'DESC')->first();
+            $getPercentage = ($getPreviousPrice->close - $current_price->close) / $getPreviousPrice->close;
+        }
+        return response()->json(
+            [
+                'coinChart' => $coinChart,
+                'chart' => $data,
+                'daily_high' =>$dailyHigh,
+                'daily_low' => $dailyLow,
+                'daily_high_vol' => $dailyHighVol,
+                'daily_low_vol' => $dailyLowVol,
+                'current_price' => $current_price,
+                'percentage' => $getPercentage
+            ]
+        );
+
     }
 }

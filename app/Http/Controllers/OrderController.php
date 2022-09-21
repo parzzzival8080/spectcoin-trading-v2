@@ -83,7 +83,7 @@ class OrderController extends Controller
 
                 // dd($usdtWallet->wallet_balance);
                 // $finalNumberOfOrder = ($btcPrice['lastPrice'] * $request->input('number_of_order'))  / $btcPrice['lastPrice'];
-                $finalNumberOfOrder = $btcPrice['lastPrice'] * $request->input('balance');
+                $finalNumberOfOrder =$request->input('balance') / $btcPrice['lastPrice'] ;
                 $coinBalance = $coinWallet->wallet_balance + $finalNumberOfOrder;
                 $coinWallet->update([
                     'wallet_balance' => $coinBalance

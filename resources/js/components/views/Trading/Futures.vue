@@ -43,7 +43,48 @@
                 </v-list-item-group>
               </v-list>
             </v-navigation-drawer>
-                  <v-card>
+          <v-bottom-navigation
+          absolute
+          dark
+          color="white"
+          horizontal
+          scroll-target="#scroll-threshold-example"
+          scroll-threshold="500"
+          shift
+          
+        >
+        <v-btn @click="$router.push('/')">       
+          <span>Home</span>
+          <v-icon>mdi-home</v-icon>
+        </v-btn>
+
+        <v-btn @click="$router.push('/')">
+          <span>Market</span>
+
+          <v-icon>mdi-chart-line-stacked</v-icon>
+        </v-btn>
+
+        <v-btn @click="openTrade()">
+          <span>Trade</span>
+          <v-icon>mdi-briefcase-arrow-left-right-outline</v-icon>
+        </v-btn>
+        <v-btn @click="openFuture()">
+          <span>Futures</span>
+
+          <v-icon>mdi-autorenew</v-icon>
+        </v-btn>
+        <v-btn @click="openWallet()">
+          <span>Assets</span>
+
+          <v-icon>mdi-wallet-outline</v-icon>
+        </v-btn>
+          </v-bottom-navigation>
+          <v-sheet
+      id="scroll-threshold-example"
+      class="overflow-y-auto pb-16"
+      max-height="850"
+    >
+      <v-card>
                     <v-card-text>
                         <v-spacer></v-spacer>
                         <v-icon>mdi-chart-waterfall</v-icon>
@@ -220,10 +261,10 @@
                   </v-card-text>
                 </v-card>
                     </v-card-text>
-                  </v-card>
-                </v-card>
-            
-         
+      </v-card>
+      <v-responsive></v-responsive>
+      </v-sheet>
+    </v-card>     
     </v-app>
   </template>
   
@@ -361,6 +402,30 @@
         .then(response => {
           
         })
+      },
+
+      openHome()
+      {
+        clearInterval(this.timer)
+        this.$router.push('/')
+      },
+
+      openMarket()
+      {
+        clearInterval(this.timer)
+        this.$router.push('/market')
+      },
+
+      openTrade()
+      {
+        clearInterval(this.timer)
+        this.$router.push('/spot/orders')
+      },
+
+      openWallet()
+      {
+        clearInterval(this.timer)
+        this.$router.push('/wallet/spot')
       },
       
       order()

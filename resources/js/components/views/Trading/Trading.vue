@@ -43,16 +43,61 @@
               </v-list-item-group>
             </v-list>
           </v-navigation-drawer>
+
+          <v-bottom-navigation
+          absolute
+          dark
+          color="white"
+          horizontal
+          scroll-target="#scroll-threshold-example"
+          scroll-threshold="500"
+          shift
+          
+        >
+        <v-btn @click="$router.push('/')">       
+          <span>Home</span>
+          <v-icon>mdi-home</v-icon>
+        </v-btn>
+
+        <v-btn @click="$router.push('/')">
+          <span>Market</span>
+
+          <v-icon>mdi-chart-line-stacked</v-icon>
+        </v-btn>
+
+        <v-btn @click="openTrade()">
+          <span>Trade</span>
+          <v-icon>mdi-briefcase-arrow-left-right-outline</v-icon>
+        </v-btn>
+        <v-btn @click="openFuture()">
+          <span>Futures</span>
+
+          <v-icon>mdi-autorenew</v-icon>
+        </v-btn>
+        <v-btn @click="openWallet()">
+          <span>Assets</span>
+
+          <v-icon>mdi-wallet-outline</v-icon>
+        </v-btn>
+          </v-bottom-navigation>
+          <v-sheet
+      id="scroll-threshold-example"
+      class="overflow-y-auto pb-16"
+      max-height="850"
+    >
                 <v-card>
                   <v-card-text>
                     <v-row > 
                                           
                       <v-col cols="6">
-                          <v-btn style="margin-right:5px;background-color:green; color:white" @click="buyButton()">Buy Long</v-btn>
-                          <v-btn style="background-color:red; color:white" @click="sellButton()">Sell Short</v-btn>
+                          <v-btn style="margin-right:5px;background-color:green; color:white" @click="buyButton()">Buy</v-btn>
+                          <v-btn style="background-color:red; color:white" @click="sellButton()">Sell</v-btn>
                           <v-text-field style="color:white" placeholder="AMOUNT ORDER" :value="parseFloat(btc.lastPrice).toFixed(4)"></v-text-field>
-                          <v-text-field style="color:white" placeholder="Amount" :value="amount"></v-text-field>
-                          <v-btn :color="buttonColor" style="width:100%; color:white" @click="commitOrder()">{{buttonLabel}}</v-btn>
+                          <v-text-field @changed="allowOrder()" style="color:white" v-model="inputAmount" placeholder="Amount" :value="inputAmount"></v-text-field>
+                          <v-btn :color="buttonColor" v-model="buttonOrder"
+                            :disabled="inputAmount == null || inputAmount <= 0 || inputAmount > wallet.wallet_balance"
+                           style="width:100%; color:white" 
+                           @click="commitOrder()">{{buttonLabel}}</v-btn>
                           <v-row style="margin-top:2px">
                             <v-col cols="3">
                               <v-sheet 
@@ -152,7 +197,10 @@
               </v-row>
                   </v-card-text>
                 </v-card>
-              </v-card>
+              <v-responsive></v-responsive>
+            </v-sheet>
+        </v-card>
+              
           
        
   </v-app>
@@ -180,7 +228,9 @@ export default {
           finalSymbol: '',
           balance: '',
           flat: null,
-          amount_to_buy: '',
+          buttonOrder: '',
+          inputAmount_to_buy: '',
+          inputAmount: '',
           btc: [],
           eth: [],
           xrp: [],
@@ -193,7 +243,7 @@ export default {
           orders: [],
           price: [],
           wallet: [],
-          amount: [],
+          inputAmount: [],
           timer: '',
 
           errors: [],
@@ -223,7 +273,7 @@ export default {
     buyButton()
     
     {
-      this.amount = 0
+      this.inputAmount = 0
       this.buttonColor = "green"
       this.buttonLabel = "BUY"
       this.sheetColor25 = "white"
@@ -243,7 +293,7 @@ export default {
 
     sellButton()
     {
-      this.amount = 0
+      this.inputAmount = 0
       const symbol = this.btc.symbol
       this.sheetColor25 = "white"
       this.sheetColor50 = "white"
@@ -275,27 +325,54 @@ export default {
       {
         name: this.finalSymbol,
         order_per_unit: this.price,
-        number_of_order: this.amount,
+        number_of_order: this.inputAmount,
         delegate_type: this.buttonLabel,
         balance: this.balance
       })
       .then(response => {
-
+        this.fetchWalletBuy()
+        this.fetchOrder()
+        this.noChange()
+        swal.fire({
+          position: "top-end",
+          toast: true,
+          type: "success",
+          text: "Successfully Ordered",
+          icon: "success",
+          timer: 1500,
+          showConfirmButton: false,
+                    });
       })
     },
-    
 
-    order()
+    noChange()
     {
-      const userRole = sessionStorage.getItem('user-type')
-        if(userRole == null)
-        {
-          this.$router.push('/login')
-        }
-        else{ 
-          console.log('working')
-        }
+      if(this.buttonLabel == 'BUY')
+      {
+        console.log("working") 
+        this.sheetColor25 = "white"
+        this.sheetColor50 = "white"
+        this.sheetColor75 = "white"
+        this.sheetColor100 = "white"
+
+        this.inputAmount = 0
+      }
+      else if(this.buttonLabel == 'SELL')
+      {
+        console.log("working") 
+        this.sheetColor25 = "white"
+        this.sheetColor50 = "white"
+        this.sheetColor75 = "white"
+        this.sheetColor100 = "white"
+
+        this.inputAmount = 0
+
+      }
+      
+        // this.sheetColor = "green"
+        
     },
+    
     quarterChange()
     {
       if(this.buttonLabel == 'BUY')
@@ -306,7 +383,7 @@ export default {
         this.sheetColor75 = "white"
         this.sheetColor100 = "white"
 
-        this.amount = (this.wallet.wallet_balance / 4) / this.btc.lastPrice
+        this.inputAmount = (this.wallet.wallet_balance / 4) / this.btc.lastPrice
         this.balance = this.wallet.wallet_balance / 4
       }
       else if(this.buttonLabel == 'SELL')
@@ -317,7 +394,7 @@ export default {
         this.sheetColor75 = "white"
         this.sheetColor100 = "white"
 
-        this.amount = (this.wallet.wallet_balance / 4) * this.btc.lastPrice
+        this.inputAmount = (this.wallet.wallet_balance / 4) * this.btc.lastPrice
         this.balance = this.wallet.wallet_balance / 4
       }
       
@@ -334,7 +411,7 @@ export default {
         this.sheetColor75 = "white"
         this.sheetColor100 = "white"
 
-        this.amount = (this.wallet.wallet_balance / 2) / this.btc.lastPrice
+        this.inputAmount = (this.wallet.wallet_balance / 2) / this.btc.lastPrice
         this.balance = this.wallet.wallet_balance / 2
       }
       else if(this.buttonLabel == 'SELL')
@@ -345,7 +422,7 @@ export default {
         this.sheetColor75 = "white"
         this.sheetColor100 = "white"
 
-        this.amount = (this.wallet.wallet_balance / 2) * this.btc.lastPrice
+        this.inputAmount = (this.wallet.wallet_balance / 2) * this.btc.lastPrice
         this.balance = this.wallet.wallet_balance / 2
       }
         // this.sheetColor = "green"
@@ -362,7 +439,7 @@ export default {
         this.sheetColor100 = "white"
         console.log(this.wallet.wallet_balance)
         console.log(this.btc.lastPrice)
-        this.amount = ((this.wallet.wallet_balance / 4) * 3) / this.btc.lastPrice
+        this.inputAmount = ((this.wallet.wallet_balance / 4) * 3) / this.btc.lastPrice
         this.balance = (this.wallet.wallet_balance / 4) * 3
       }
       else if(this.buttonLabel == 'SELL')
@@ -374,7 +451,7 @@ export default {
         this.sheetColor100 = "white"
         console.log(this.wallet.wallet_balance)
         console.log(this.btc.lastPrice)
-        this.amount = ((this.wallet.wallet_balance / 4) * 3) * this.btc.lastPrice
+        this.inputAmount = ((this.wallet.wallet_balance / 4) * 3) * this.btc.lastPrice
         this.balance = (this.wallet.wallet_balance / 4) * 3
       }
       
@@ -392,7 +469,7 @@ export default {
         console.log(this.wallet.wallet_balance)
         console.log(this.btc.lastPrice)
 
-        this.amount =this.wallet.wallet_balance / this.btc.lastPrice
+        this.inputAmount =this.wallet.wallet_balance / this.btc.lastPrice
         this.balance = this.wallet.wallet_balance
       }
       else if(this.buttonLabel == 'SELL')
@@ -406,7 +483,7 @@ export default {
         console.log(this.wallet.wallet_balance)
         console.log(this.btc.lastPrice)
 
-        this.amount =this.wallet.wallet_balance * this.btc.lastPrice
+        this.inputAmount =this.wallet.wallet_balance * this.btc.lastPrice
         this.balance = this.wallet.wallet_balance 
       }
         // this.sheetColor = "green"
@@ -454,6 +531,31 @@ export default {
         this.wallet = response.data.wallet
       })
     },
+
+    openHome()
+      {
+        clearInterval(this.timer)
+        this.$router.push('/')
+      },
+
+      openMarket()
+      {
+        clearInterval(this.timer)
+        this.$router.push('/market')
+      },
+
+      openFuture()
+      {
+        clearInterval(this.timer)
+        this.$router.push('/future/orders')
+      },
+
+      openWallet()
+      {
+        clearInterval(this.timer)
+        this.$router.push('/wallet/spot')
+      },
+
       fetchMarket() {
           axios
               .get('/api/v1/top-list')
@@ -477,6 +579,13 @@ export default {
       toTop() {
           this.$vuetify.goTo(0);
       },
+
+      allowOrder()
+      {
+        this.inputAmount = this.inputAmount
+      }
+
+
   },
 
   watch: {
@@ -501,6 +610,7 @@ export default {
       this.fetchWalletBuy()
       this.fetchOrder()
       this.fetchMarket()
+      
       this.timer = setInterval(this.fetchOrder, 3000);
 
   },

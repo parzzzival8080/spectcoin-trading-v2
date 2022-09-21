@@ -78,6 +78,8 @@ Route::group(['middleware' => 'forceJsonResponse'], function () {
             Route::post('update/transfers', [FutureTransferController::class, 'updateTransfer']);
             Route::apiResource('wallets/future', FutureWalletController::class);
 
+            Route::get('ongoing/future', [FutureController::class, 'updateFuture']);
+
             Route::apiResource('futures/order', FutureController::class);
 
             Route::get('margin', [FutureController::class, 'margin']);

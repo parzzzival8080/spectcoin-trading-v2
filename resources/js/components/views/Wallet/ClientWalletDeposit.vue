@@ -163,6 +163,30 @@
       })
     },
 
+    openHome()
+      {
+        clearInterval(this.timer)
+        this.$router.push('/')
+      },
+
+      openMarket()
+      {
+        clearInterval(this.timer)
+        this.$router.push('/market')
+      },
+
+      openFuture()
+      {
+        clearInterval(this.timer)
+        this.$router.push('/future/orders')
+      },
+
+      openWallet()
+      {
+        clearInterval(this.timer)
+        this.$router.push('/wallet/spot')
+      },
+
     fetchCoins() {
             axios
                 .get("/api/v1/coins")
