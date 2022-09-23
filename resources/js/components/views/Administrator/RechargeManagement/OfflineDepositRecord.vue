@@ -266,13 +266,13 @@ export default {
             this.tableLoading = true;
             this.componentOverlay = true;
             axios
-                .get("/api/v1/deposits", {
+                .get("/api/v1/offline-deposit-record", {
                     params: {
                         status: 'APPROVED'
                     }
                 })
                 .then(response => {
-                    this.tableDeposits = response.data.clients;
+                    this.tableDeposits = response.data.data;
                 })
                 .catch(error => {
                     console.log(error);

@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BinanceAPIController;
+use App\Http\Controllers\ChartMonitorController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\ClientDepositController;
 use App\Http\Controllers\ClientWalletController;
@@ -37,14 +38,16 @@ Route::group(['middleware' => 'forceJsonResponse'], function () {
         Route::get('getOrder', [BinanceAPIController::class, 'getOrder']);
 
         Route::post('/login', [AuthController::class, 'login']);
-        // Route::post('/login', 'AuthController@login');
-        // Route::post('/register', 'OccupantController@store');
-
-        // Route::get('/verification', [VerificationController::class, 'verifyContactNumber']);
+       
         Route::get('/verification', [VerificationController::class, 'verifyContactNumber']);
-        // Route::put('/forgot-password', 'VerificationController@sendCodeToContactNumber');
-        // Route::put('/forgot-password/verify-code', 'VerificationController@verifyForgotPasswordCode');
-        // Route::put('/forgot-password/change-password', 'VerificationController@forgotPasswordChangePassword');
+        Route::get('/checkHighLow', [ChartMonitorController::class, 'chartMonitoringHighLow']);
+        Route::get('/addCandle', [ChartMonitorController::class, 'chartAddingCandle']);
+        
+        /** Charts */
+        Route::get('charts/btcusdt', [CoinPairController::class, 'btcChart']);
+        Route::get('btcusdt', [BinanceAPIController::class, 'BTCCHART']);
+        Route::post('latest-candle/add', [CoinPairController::class, 'addChartData']);
+        Route::get('latest-candle/update', [CoinPairController::class,'updateCandle']);
 
         Route::group(['middleware' => 'auth:api'], function() {
 
@@ -68,8 +71,8 @@ Route::group(['middleware' => 'forceJsonResponse'], function () {
             Route::apiResource('chart', CoinChartDataController::class);
             Route::apiResource('coinpairs', CoinPairController::class);
             Route::get('latest-candle', [CoinPairController::class, 'latestCandle']);
-            Route::get('latest-candle/update', [CoinPairController::class,'updateCandle']);
-            Route::post('latest-candle/add', [CoinPairController::class, 'addChartData']);
+            
+           
             Route::apiResource('order', OrderController::class);
             
 
@@ -85,6 +88,9 @@ Route::group(['middleware' => 'forceJsonResponse'], function () {
             Route::get('margin', [FutureController::class, 'margin']);
 
            Route::get('future-records', [FutureController::class, 'index']); 
+
+           /** Charts */
+           
            
             /** For API */
             

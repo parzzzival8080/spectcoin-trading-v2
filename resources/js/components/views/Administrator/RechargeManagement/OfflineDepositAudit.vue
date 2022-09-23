@@ -272,7 +272,7 @@ export default {
             this.tableLoading = true;
             this.componentOverlay = true;
             axios
-                .get("/api/v1/deposits", {
+                .get("/api/v1/offline-deposit-audit", {
                     params: {
                         status: 'PENDING'
                     }

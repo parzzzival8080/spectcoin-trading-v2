@@ -36,6 +36,10 @@ class OrderController extends Controller
         {
             $order = Client::where('user_id', $auth->id)->with('orders')->get();
         }
+
+        return response()->json([
+            'order' => $order
+        ]);
         
     }
 

@@ -262,6 +262,7 @@ class ClientDepositController extends Controller
         if($auth->role == 'ADMINISTRATOR')
         {
             $client = ClientDeposit::with('client')->where('recharge_status', 'PENDING')->get();
+            // dd($client);
             return response()->json(
                 [
                     'clients' => $client

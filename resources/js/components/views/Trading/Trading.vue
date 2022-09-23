@@ -95,7 +95,7 @@
                           <v-text-field style="color:white" placeholder="AMOUNT ORDER" :value="parseFloat(btc.lastPrice).toFixed(4)"></v-text-field>
                           <v-text-field @changed="allowOrder()" style="color:white" v-model="inputAmount" placeholder="Amount" :value="inputAmount"></v-text-field>
                           <v-btn :color="buttonColor" v-model="buttonOrder"
-                            :disabled="inputAmount == null || inputAmount <= 0 || inputAmount > wallet.wallet_balance"
+                            :disabled="inputAmount == null || inputAmount <= 0"
                            style="width:100%; color:white" 
                            @click="commitOrder()">{{buttonLabel}}</v-btn>
                           <v-row style="margin-top:2px">

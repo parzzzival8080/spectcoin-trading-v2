@@ -95,9 +95,9 @@
                             <v-btn style="margin-right:5px;background-color:green; color:white" @click="buyButton()">Buy Long</v-btn>
                             <v-btn style="background-color:red; color:white" @click="sellButton()">Sell Short</v-btn>
                             <v-text-field style="color:white" placeholder="AMOUNT ORDER" :value="parseFloat(btc.lastPrice).toFixed(4)"></v-text-field>
-                            <v-text-field style="color:white" placeholder="Amount" :value="amount"></v-text-field>
-                            <v-text-field style="color:white" placeholder="Leverage" v-model="leverage"></v-text-field>
-                            <v-btn :color="buttonColor" style="width:100%; color:white" @click="commitOrder()">{{buttonLabel}}</v-btn>
+                            <v-text-field style="color:white" placeholder="Amount" v-model="inputAmount" :value="inputAmount"></v-text-field>
+                            <v-text-field style="color:white" placeholder="Leverage"  v-model="leverage"></v-text-field>
+                            <v-btn :color="buttonColor" :disabled="inputAmount == null || inputAmount <= 0 || leverage == null || leverage == 0" style="width:100%; color:white" @click="commitOrder()">{{buttonLabel}}</v-btn>
                             <v-row style="margin-top:2px">
                               <v-col cols="3">
                                 <v-sheet 
@@ -304,9 +304,10 @@
             orders: [],
             price: [],
             wallet: [],
-            amount: [],
+            inputAmount: [],
             margin: [],
             timer: '',
+            timer2: '',
   
             errors: [],
   
@@ -335,7 +336,7 @@
       buyButton()
       
       {
-        this.amount = 0
+        this.inputAmount = 0
         this.buttonColor = "green"
         this.buttonLabel = "BUY"
         this.sheetColor25 = "white"
@@ -355,7 +356,7 @@
   
       sellButton()
       {
-        this.amount = 0
+        this.inputAmount = 0
         const symbol = this.btc.symbol
         this.sheetColor25 = "white"
         this.sheetColor50 = "white"
@@ -368,7 +369,7 @@
   
         axios.get('/api/v1/future/wallet-balance', {
           params: {
-            'name': this.finalSymbol,
+            'name': 'USDT',
           }
         })
         .then(response => {
@@ -395,14 +396,45 @@
         {
           name: this.finalSymbol,
           opening_price: this.price,
-          margin: this.amount,
+          margin: this.inputAmount,
           leverage: this.leverage,
           delegate_type: this.buttonLabel
         })
         .then(response => {
-          
+          this.fetchWalletBuy()
+        this.fetchOrder()
+        this.noChange()
+        swal.fire({
+          position: "top-end",
+          toast: true,
+          type: "success",
+          text: "Successfully Ordered",
+          icon: "success",
+          timer: 1500,
+          showConfirmButton: false,
+                    });
         })
       },
+
+      fetchWalletBuy()
+    {
+      /** if buy select usdt coin else get symbol */
+      this.buttonColor = "green"
+      this.buttonLabel = "BUY"
+      axios.get('/api/v1/future/wallet-balance', {
+        params: {
+          'name': 'USDT',
+        }
+      })
+      .then(response => {
+        this.wallet = response.data.wallet
+      })
+    },
+
+    closePosition()
+    {
+      
+    },
 
       openHome()
       {
@@ -439,6 +471,34 @@
             console.log('working')
           }
       },
+
+      noChange()
+    {
+      if(this.buttonLabel == 'BUY')
+      {
+        console.log("working") 
+        this.sheetColor25 = "white"
+        this.sheetColor50 = "white"
+        this.sheetColor75 = "white"
+        this.sheetColor100 = "white"
+
+        this.inputAmount = 0
+      }
+      else if(this.buttonLabel == 'SELL')
+      {
+        console.log("working") 
+        this.sheetColor25 = "white"
+        this.sheetColor50 = "white"
+        this.sheetColor75 = "white"
+        this.sheetColor100 = "white"
+
+        this.inputAmount = 0
+
+      }
+      
+        // this.sheetColor = "green"
+        
+    },
       quarterChange()
       {
         if(this.buttonLabel == 'BUY')
@@ -449,7 +509,7 @@
           this.sheetColor75 = "white"
           this.sheetColor100 = "white"
   
-          this.amount = (this.wallet.wallet_balance / 4)
+          this.inputAmount = (this.wallet.wallet_balance / 4)
         }
         else if(this.buttonLabel == 'SELL')
         {
@@ -459,7 +519,7 @@
           this.sheetColor75 = "white"
           this.sheetColor100 = "white"
   
-          this.amount = (this.wallet.wallet_balance / 4)
+          this.inputAmount = (this.wallet.wallet_balance / 4)
         }
         
           // this.sheetColor = "green"
@@ -475,7 +535,7 @@
           this.sheetColor75 = "white"
           this.sheetColor100 = "white"
   
-          this.amount = (this.wallet.wallet_balance / 2) / this.btc.lastPrice
+          this.inputAmount = (this.wallet.wallet_balance / 2) 
           this.balance = this.wallet.wallet_balance / 2
         }
         else if(this.buttonLabel == 'SELL')
@@ -486,7 +546,7 @@
           this.sheetColor75 = "white"
           this.sheetColor100 = "white"
   
-          this.amount = (this.wallet.wallet_balance / 2)
+          this.inputAmount = (this.wallet.wallet_balance / 2)
         }
           // this.sheetColor = "green"
           
@@ -502,7 +562,7 @@
           this.sheetColor100 = "white"
           console.log(this.wallet.wallet_balance)
           console.log(this.btc.lastPrice)
-          this.amount = ((this.wallet.wallet_balance / 4) * 3) 
+          this.inputAmount = ((this.wallet.wallet_balance / 4) * 3) 
         }
         else if(this.buttonLabel == 'SELL')
         {
@@ -513,7 +573,7 @@
           this.sheetColor100 = "white"
           console.log(this.wallet.wallet_balance)
           console.log(this.btc.lastPrice)
-          this.amount = ((this.wallet.wallet_balance / 4) * 3) 
+          this.inputAmount = ((this.wallet.wallet_balance / 4) * 3) 
         }
         
       },
@@ -530,7 +590,7 @@
           console.log(this.wallet.wallet_balance)
           console.log(this.btc.lastPrice)
   
-          this.amount =this.wallet.wallet_balance 
+          this.inputAmount =this.wallet.wallet_balance 
         }
         else if(this.buttonLabel == 'SELL')
         {
@@ -543,7 +603,7 @@
           console.log(this.wallet.wallet_balance)
           console.log(this.btc.lastPrice)
   
-          this.amount =this.wallet.wallet_balance * this.btc.lastPrice
+          this.inputAmount =this.wallet.wallet_balance * this.btc.lastPrice
           this.balance = this.wallet.wallet_balance 
         }
           // this.sheetColor = "green"
@@ -587,6 +647,11 @@
         toTop() {
             this.$vuetify.goTo(0);
         },
+
+        allowOrder()
+      {
+        this.inputAmount = this.inputAmount
+      }
     },
   
     watch: {
@@ -612,7 +677,8 @@
         this.fetchOrder()
         this.fetchMarket()
         this.fetchFuture()
-        this.timer = setInterval(this.fetchOrder, 3000);
+        this.timer = setInterval(this.fetchOrder, 3000)
+        this.timer2 = setInterval(this.fetchFuture, 3000)
   
     },
   

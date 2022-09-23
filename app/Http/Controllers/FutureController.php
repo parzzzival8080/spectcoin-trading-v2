@@ -80,57 +80,130 @@ class FutureController extends Controller
             $coinPair = $request->input('name').'USDT';
             $btcPrice = $binance->getTicker($coinPair);
 
-           
-
             if($request->input('delegate_type') == 'BUY')
             {
-                $parity = $btcPrice['lastPrice'] - ($btcPrice['lastPrice'] / $request->input('leverage'));
+                if($clientWalletFuture->wallet_balance == 0)
+                {
+                    return response()->json(
+                        [
+                            'message' => 'You have no Balance in your wallet'
+                        ]
+                    );
+                }
+                elseif($clientWalletFuture->wallet_balance < $request->input('margin'))
+                {
+                    return response()->json(
+                        [
+                            'message' => 'Insufficient balance in your wallet'
+                        ]
+                    );
+                }
+                else{
+                    $wallet_balance = $clientWalletFuture->wallet_balance - $request->input('margin');
 
-                $open_interest = $request->input('margin') * $request->input('leverage');
-
-                /** Get Stop loss difference by margin * leverage  */
-                $stop_loss_difference = (($request->input('margin') / $btcPrice['lastPrice']) * $request->input('leverage') * $btcPrice['lastPrice'] - $open_interest) + $request->input('margin');
-
-                /** Reach take profit  difference*/
-                $reached_take_profit_difference = ($request->input('margin') / $btcPrice['lastPrice']) * $request->input('leverage') * $btcPrice['lastPrice'];
-
-                /** Get income by stop loss difference - margin */
-                $income = $stop_loss_difference - $request->input('margin');
-
-                /** Get rate of return by (current price - old price / old price) * 100  * leverage*/
-                $rate_of_return = (($btcPrice['lastPrice'] - $btcPrice['lastPrice']) / ($btcPrice['lastPrice']) * $request->input('leverage'));
-
-                $future = Future::create(array_merge(
-                    [
-                        'client_id' => $client->id,
-                        'coin_pair_id' => $coinpair->id,
-                        'client_wallet_future_id' => $clientWalletFuture->id, 
-                        'estimated_force_parity' => $parity,
-                        'open_interest' => $open_interest,
-                        'opening_price' => $btcPrice['lastPrice'] ,
-                        'current_price' => $btcPrice['lastPrice'] ,
-                        'margin' => $request->input('margin'),
-                        'leverage' => $request->input('leverage'),
-                        'manual_closing_allowed' => 'NO',
-                        'reached_stop_loss_difference' => $stop_loss_difference,
-                        'reached_take_profit_difference' => $reached_take_profit_difference,
-                        'income' => $income,
-                        'status' => 'LOCKED',
-                        'rate_of_return' => $rate_of_return
-                    ], 
-                ));
-
-                return response()->json(
-                    [
-                        'future' => $future
-                    ]
-                );
+                    $clientWalletFuture->update([
+                        'wallet_balance' => $wallet_balance
+                    ]);
+                    $parity = $btcPrice['lastPrice'] - ($btcPrice['lastPrice'] / $request->input('leverage'));
+    
+                    $open_interest = $request->input('margin') * $request->input('leverage');
+    
+                    /** Get Stop loss difference by margin * leverage  */
+                    $total_asset = (($request->input('margin') / $btcPrice['lastPrice']) * $request->input('leverage') * $btcPrice['lastPrice']);
+    
+                    $stop_loss_difference = $total_asset - $open_interest;
+    
+                    /** Get income by stop loss difference - margin */
+                    $income = $stop_loss_difference - $request->input('margin');
+    
+                    /** Get rate of return by (current price - old price / old price) * 100  * leverage*/
+                    $rate_of_return = ((($btcPrice['lastPrice'] - $btcPrice['lastPrice'])  / ($btcPrice['lastPrice'])) * $request->input('leverage'));
+                    
+    
+                    $reach_take_profit_difference = $total_asset / $request->input('leverage');
+    
+                    $future = Future::create(array_merge(
+                        [
+                            'client_id' => $client->id,
+                            'coin_pair_id' => $coinpair->id,
+                            'client_wallet_future_id' => $clientWalletFuture->id, 
+                            'estimated_force_parity' => $parity,
+                            'open_interest' => $open_interest,
+                            'opening_price' => $btcPrice['lastPrice'] ,
+                            'current_price' => $btcPrice['lastPrice'] ,
+                            'margin' => $request->input('margin'),
+                            'leverage' => $request->input('leverage'),
+                            'manual_closing_allowed' => 'NO',
+                            'reached_stop_loss_difference' => $stop_loss_difference,
+                            'reached_take_profit_difference' => $reach_take_profit_difference,
+                            'income' => $income,
+                            'total_asset' => $total_asset,
+                            'status' => 'LOCKED',
+                            'rate_of_return' => $rate_of_return
+                        ], 
+                    ));
+    
+                    return response()->json(
+                        [
+                            'future' => $future
+                        ]
+                    );
+                }
+               
             }
-        }
+            elseif($request->input('delegate_type') == 'SELL')
+            {
+                $wallet_balance = $clientWalletFuture->wallet_balance - $request->input('margin');
 
-        
-
-
+                    $clientWalletFuture->update([
+                        'wallet_balance' => $wallet_balance
+                    ]);
+                    $parity = $btcPrice['lastPrice'] + ($btcPrice['lastPrice'] / $request->input('leverage'));
+    
+                    $open_interest = $request->input('margin') * $request->input('leverage');
+    
+                    /** Get Stop loss difference by margin * leverage  */
+                    $total_asset = (($request->input('margin') / $btcPrice['lastPrice']) * $request->input('leverage')) * $btcPrice['lastPrice'];
+    
+                    $stop_loss_difference = $total_asset - $open_interest;
+    
+                    /** Get income by stop loss difference - margin */
+                    $income = $stop_loss_difference - $request->input('margin');
+    
+                    /** Get rate of return by (current price - old price / old price) * 100  * leverage*/
+                    $rate_of_return = ((($btcPrice['lastPrice'] - $btcPrice['lastPrice'])  / ($btcPrice['lastPrice'])) * $request->input('leverage'));
+                    
+    
+                    $reach_take_profit_difference = $total_asset / $request->input('leverage');
+    
+                    $future = Future::create(array_merge(
+                        [
+                            'client_id' => $client->id,
+                            'coin_pair_id' => $coinpair->id,
+                            'client_wallet_future_id' => $clientWalletFuture->id, 
+                            'estimated_force_parity' => $parity,
+                            'open_interest' => $open_interest,
+                            'opening_price' => $btcPrice['lastPrice'] ,
+                            'current_price' => $btcPrice['lastPrice'] ,
+                            'margin' => $request->input('margin'),
+                            'leverage' => $request->input('leverage'),
+                            'manual_closing_allowed' => 'NO',
+                            'reached_stop_loss_difference' => $stop_loss_difference,
+                            'reached_take_profit_difference' => $reach_take_profit_difference,
+                            'income' => $income,
+                            'total_asset' => $total_asset,
+                            'status' => 'LOCKED',
+                            'rate_of_return' => $rate_of_return
+                        ], 
+                    ));
+    
+                    return response()->json(
+                        [
+                            'future' => $future
+                        ]
+                    );
+                }
+            }
 
         // $current_price = CoinChartData::where('coin_pair_id', $coinpair->id)->orderBy('date', 'DESC')->first();
 
@@ -280,7 +353,7 @@ class FutureController extends Controller
                 $stop_loss_difference = $total_asset - $future['open_interest'];
 
                 /** Get income by stop loss difference - margin */
-                $income = $stop_loss_difference - $future['margin'];
+                $income = $total_asset - $future['open_interest'];
 
                 /** Get rate of return by (current price - old price / old price) * 100  * leverage*/
                 $rate_of_return = ((($price['lastPrice'] - $future['opening_price'])  / ($future['opening_price'])) * $future['leverage']);

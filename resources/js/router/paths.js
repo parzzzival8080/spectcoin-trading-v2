@@ -34,6 +34,10 @@ import ClientWalletFuture from '../components/views/Wallet/ClientWalletFuture.vu
 import ClientWalletDeposit from '../components/views/Wallet/ClientWalletDeposit.vue'
 import ClientWalletWithdraw from '../components/views/Wallet/ClientWalletWithdraw.vue'
 
+import ClientChart from '../components/views/Chart.vue'
+
+import ChartBtcUsdt from '../components/views/Trading/MainCoin/BTCUSDT'
+
 
 
 
@@ -109,6 +113,10 @@ const routes = [
   {path: "/wallet/future", name: "coin-pairs", components: { default: ClientWalletFuture}},
   {path: "/wallet/deposit", name: "coin-pairs", components: { default: ClientWalletDeposit}},
   {path: "/wallet/withdraw", name: "coin-pairs", components: { default: ClientWalletWithdraw}},
+
+  {path: "/chart/BTCUSDT", name: "coin-pairs", components: { default: ChartBtcUsdt}},
+
+  {path: "/chart", name: "coin-pairs", components: { default: ClientChart}},
 
   {
     path: "/",

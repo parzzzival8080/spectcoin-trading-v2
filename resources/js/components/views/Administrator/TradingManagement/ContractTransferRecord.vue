@@ -382,6 +382,17 @@ export default {
                 transfer_id: this.editedTransferInformation.id,
                 client_id: this.editedTransferInformation.client_id,
                 state: 'APPROVED'
+            }).then(response => {
+                this.fetchTransfers()
+                swal.fire({
+                        position: "top-end",
+                        toast: true,
+                        type: "success",
+                        icon: "success",
+                        text: "Deposit Successfully Requested",
+                        showConfirmButton: false,
+                        timer: 1500
+                    });
             })
         },
         declineTransfer(transfer)
@@ -392,6 +403,17 @@ export default {
                 transfer_id: this.editedTransferInformation.id,
                 client_id: this.editedTransferInformation.client_id,
                 state: 'DECLINED'
+            }).then(response => {
+                this.fetchTransfers()
+                swal.fire({
+                        position: "top-end",
+                        toast: true,
+                        type: "success",
+                        icon: "success",
+                        text: "Deposit Successfully Requested",
+                        showConfirmButton: false,
+                        timer: 1500
+                    });
             })
         },
 

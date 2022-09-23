@@ -510,18 +510,18 @@ export default {
                 { text: "Serial Number", value: "id" },
                 { text: "Role", value: "role" },
                 { text: "UID", value: "id" },
-                { text: "Email", value: "email" },
+                { text: "Email", value: "client.email" },
                 { text: "Delegate Type", value: "delegate_type" },
                 { text: "Trading Pair", value: "trading_pair" },
                 { text: "state", value: "state" },
-                { text: "Number of Orders", value: "number_of_orders" },
-                { text: "Order Unit Price", value: "" },
-                { text: "Total Commission", value: "client_referal_id" },
-                { text: "Final Price", value: "withdraw_transfer_status" },
+                { text: "Number of Orders", value: "number_of_order" },
+                { text: "Order Unit Price", value: "unit_price" },
+                { text: "Total Commission", value: "total_commission" },
+                { text: "Final Price", value: "final_price" },
                 { text: "Volume", value: "volume" },
-                { text: "Turnover", value: "" },
-                { text: "Commission Time", value: "" },
-                { text: "Last Modified", value: "" },
+                { text: "Turnover", value: "turnover" },
+                { text: "Commission Time", value: "commission_time" },
+                { text: "Last Modified", value: "date_modified" },
             ],
 
             tableSpotAssetsHeaders: [
@@ -634,9 +634,9 @@ export default {
             this.tableLoading = true;
             this.componentOverlay = true;
             axios
-                .get("/api/v1/clients")
+                .get("/api/v1/order")
                 .then(response => {
-                    this.tableSpots = response.data.clients;
+                    this.tableSpots = response.data.order;
                 })
                 .catch(error => {
                     console.log(error);

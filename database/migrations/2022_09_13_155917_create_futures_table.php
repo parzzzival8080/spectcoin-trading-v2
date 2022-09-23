@@ -29,6 +29,7 @@ class CreateFuturesTable extends Migration
             $table->string('current_price');
             $table->enum('manual_closing_allowed', ['YES', 'NO']);
             $table->double('reached_stop_loss_difference');
+            $table->double('total_asset');
             $table->double('reached_take_profit_difference');
             $table->double('income');
             $table->double('rate_of_return');

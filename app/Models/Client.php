@@ -10,8 +10,10 @@ class Client extends Model
     // use UsesUuid;
     //
     protected $fillable = [
-        'user_id', 'role', 'membership_level', 'nickname', 'member_miner_level', 'mobile_number', 'email', 'reciever_verification_code_account', 'withdraw_transfer_status', 'state',
-        'referal_email', 'client_referal _id', 'agree_to_contract_agreement', 'registered_ip', 'last_logined_ip', 'current_login_ip', 'registered_source', 'number_of_logins', 'queue'
+        'user_id', 'serial_number', 'referral_code_used', 'role', 'membership_level', 'nickname', 
+        'member_miner_level', 'mobile_number', 'email', 'reciever_verification_code_account', 'withdraw_transfer_status', 'state',
+        'referal_email', 'client_referal _id', 'agree_to_contract_agreement', 'registered_ip', 
+        'last_logined_ip', 'current_login_ip', 'registered_source', 'number_of_logins', 'queue'
     ];
 
     public function user()
@@ -37,5 +39,10 @@ class Client extends Model
     public function orders()
     {
         return $this->hasMany(Order::class);
+    }
+
+    public function referral()
+    {
+        return $this->belongsTo(Referral::class);
     }
 }

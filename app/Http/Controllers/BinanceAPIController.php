@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Coin;
+use App\Models\CoinChartData;
+use App\Models\CoinPair;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
@@ -72,5 +75,23 @@ class BinanceAPIController extends Controller
             'result' => $response,
             'price' => $btcPrice
     ]);
+    }
+
+    public function BTCCHART(Request $request)
+    {
+        $coin = Coin::where('name', 'BTC')->first();
+        $coinpair = CoinPair::where('coin_id', $coin->id)->first();
+        $chartData = CoinChartData::where('coin_pair_id', $coinpair->id)->orderBy('date', 'DESC')->first();
+        $binance = new BinanceAPI();
+        $btc = $request->symbol.'USDT';
+        $btcPrice = $binance->getTicker($btc);
+        // dd($btcPrice);
+        return response()->json(
+            [
+                'chart' => $btcPrice,
+                'chartData' => $chartData
+            ]
+        );
+        
     }
 }

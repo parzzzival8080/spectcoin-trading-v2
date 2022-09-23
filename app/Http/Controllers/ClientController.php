@@ -7,6 +7,8 @@ use App\Http\Requests\Client\StoreClientRequest;
 use App\Http\Requests\Client\UpdateClientRequest;
 use App\Models\Client;
 use App\Models\ClientWallet;
+use App\Models\Coin;
+use App\Models\Referral;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -62,18 +64,75 @@ class ClientController extends Controller
      */
     public function store(StoreClientRequest $request)
     {
-        //
-        $user = User::create($request->validated());
-        // dd($user->id);
-        $client = Client::create(array_merge($request->validated(), ['user_id' => $user->id, 'state' => 'PENDING', 'registered_ip' => $request->ip()]));
+       
 
-        $clientWallet = ClientWallet::create(['client_id' => $client->id, 'coin_id' => 1, 'wallet_balance' => 0 ]);
+        $referralCode = random_int(100000, 999999);
+        $client = Client::where('referral_code', $referralCode)->first();
+        if($client->referral_code == null)
+        {
+            $user = User::create($request->validated());
+        // dd($user->id);
+            $client = Client::create(array_merge($request->validated(), ['referral_code' => $referralCode, 'user_id' => $user->id, 'state' => 'PENDING', 'registered_ip' => $request->ip()]));
+            $referral = Referral::create(array_merge([
+                'client_id' => $client->id,
+                'referral_code' => $referralCode,
+                'total_deposits' => 0,
+                'total_incentives' => 0
+            ]));
+
+            $coins = Coin::all();
+            
+            foreach($coins as $coin)
+            {
+                $clientWallet = ClientWallet::create([
+                    'client_id' => $client->id,
+                    'coin_id' => $coin->id,
+                    'wallet_balance' => 0
+                ]);
+            } 
 
         return response()->json(
             [
                 'client' => $client
             ]
         );
+        }
+        elseif($client->referral_code == $referralCode)
+        {
+            $newReferralCode = random_int(100000, 999999);
+            $serialNumber = str_pad($client->id + 1, 7, "0", STR_PAD_LEFT);
+
+            $user = User::create($request->validated());
+        // dd($user->id);
+            $client = Client::create(array_merge($request->validated(), ['serial_number' => $serialNumber, 
+            'user_id' => $user->id, 'state' => 'PENDING', 
+            'registered_ip' => $request->ip()]));
+
+            $coins = Coin::all();
+            
+            foreach($coins as $coin)
+            {
+                $clientWallet = ClientWallet::create([
+                    'client_id' => $client->id,
+                    'coin_id' => $coin->id,
+                    'wallet_balance' => 0
+                ]);
+            }
+
+            $referral = Referral::create(array_merge([
+                'client_id' => $client->id,
+                'referral_code' => $referralCode,
+                'total_deposits' => 0,
+                'total_incentives' => 0
+            ]));
+                                                             
+            return response()->json(
+                [
+                    'client' => $client
+                ]
+            );
+        }
+        
     }
 
     /**
@@ -130,4 +189,5 @@ class ClientController extends Controller
     {
         //
     }
+
 }

@@ -27,6 +27,8 @@
         "@braid/vue-formulate": "^2.5.3",
         "@fortawesome/fontawesome-free": "^6.2.0",
         "@mdi/font": "^7.0.96",
+        "amcharts3": "^3.21.15",
+        "amstock3": "^3.21.15",
         "fortawesome": "^0.0.1-security",
         "jquery": "^3.6.1",
         "laravel-echo": "^1.14.0",

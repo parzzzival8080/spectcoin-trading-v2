@@ -19,6 +19,8 @@ class CreateClientsTable extends Migration
             $table->unsignedBigInteger('user_id');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->string('nickname')->nullable();
+            $table->string('serial_number');
+            $table->string('referral_code_used')->nullable();
             $table->string('role');
             $table->string('membership_level');
             $table->string('member_miner_level');
